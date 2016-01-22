@@ -1,4 +1,4 @@
-package o3co.util.generator
+package jp.o3co.util.generator
 
 import org.specs2.mutable.Specification
 

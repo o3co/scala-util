@@ -1,4 +1,4 @@
-package o3co.util.counter
+package jp.o3co.util.counter
 package impl
 
 /**

@@ -1,6 +1,6 @@
-package o3co.util.generator
+package jp.o3co.util.generator
 
-import o3co.util.counter.impl.CounterImpl
+import jp.o3co.util.counter.impl.CounterImpl
 import scala.math.Numeric
 
 /**

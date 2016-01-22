@@ -1,4 +1,4 @@
-package o3co.util.counter.impl
+package jp.o3co.util.counter.impl
 
 import org.specs2.mutable.Specification
 

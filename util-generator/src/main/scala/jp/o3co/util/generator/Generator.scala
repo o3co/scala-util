@@ -1,4 +1,4 @@
-package o3co.util.generator
+package jp.o3co.util.generator
 
 import scala.util.Try
 
@@ -19,18 +19,27 @@ trait Generator[T] {
     true
   }
 
-  def validate(value: T): Boolean = {
-    validation(value)
-  }
-
+  /**
+   * Method to generate single value 
+   */
   protected def doGenerate: T
 
+  /**
+   *
+   * @return T Generated value
+   * @throws GenerateException thrown if Failed to generate valid value in tries
+   */
   def generate: T = tryGenerate.getOrElse(throw new GenerateException("Failed to generate value."))
-  
+
+  /**
+   * Try generate
+   *
+   * @return Option[T] Some if successfully generated, None otherwise
+   */
   def tryGenerate: Option[T] = {
     Iterator.continually(Try(doGenerate))
       .take(numOfTries)
-      .find(t => t.isSuccess && validate(t.get))
+      .find(t => t.isSuccess && validation(t.get))
       .flatMap(_.toOption)
   }
 }
