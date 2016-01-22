@@ -8,10 +8,9 @@ object Build extends Build
 
   lazy val root = Project("root", file("."))
     .settings(basicSettings: _*)
+    .settings(noPublishing: _*)
     .aggregate(
-      // 
-      Utils.counter,
-      Utils.generator
+      Utils.root
     )
     .settings(
       aggregate in update := false
