@@ -7,8 +7,9 @@ import spray.routing.Route
 
 import request.delegator.RequestDelegator
 
-trait Implicits extends DelegateType.Implicits
-
+/***
+ * RequestDelegate to mixin delegate method into HttpService
+ */
 trait RequestDelegate extends Implicits {
   this: HttpServiceBase => 
 
