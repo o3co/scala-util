@@ -15,11 +15,11 @@ trait RequestDelegate extends Implicits {
 
   lazy val delegators: mutable.Map[DelegateType, RequestDelegator] = mutable.Map() 
 
-  def delegate(content: Any, typed: DelegateType)(f: PartialFunction[Any, Route]): Route = {
+  def delegate[T](content: T, typed: DelegateType)(f: PartialFunction[T, Route]): Route = {
     delegators(typed)(content)(f)
   }
 
-  def delegate(content: Future[_], typed: DelegateType)(f: PartialFunction[Any, Route]): Route = {
+  def delegate[T](content: Future[T], typed: DelegateType)(f: PartialFunction[T, Route]): Route = {
     delegators(typed)(content)(f)
   }
 }

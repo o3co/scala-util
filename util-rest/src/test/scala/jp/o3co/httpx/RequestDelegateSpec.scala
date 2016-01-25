@@ -67,13 +67,13 @@ class RequestDelegateSpec extends Specification with Specs2RouteTest with HttpSe
       }
 
       // Recursive futures
-      Get() ~> testRoute(delegate(Future(Future(Future("hello"))), "test") {
-        case "hello" => complete(StatusCodes.OK)
-        case other   => complete(StatusCodes.BadRequest)
-      }) ~> check {
-        //status = StatusCodes.OK
-        status should be equalTo StatusCodes.OK
-      }
+      //Get() ~> testRoute(delegate(Future(Future(Future("hello"))), "test") {
+      //  case "hello" => complete(StatusCodes.OK)
+      //  case other   => complete(StatusCodes.BadRequest)
+      //}) ~> check {
+      //  //status = StatusCodes.OK
+      //  status should be equalTo StatusCodes.OK
+      //}
     }
   }
 }

@@ -19,11 +19,11 @@ trait DefaultRequestDelegate extends RequestDelegate {
     delegators.put(defaultDelegateType, delegator)
   }
 
-  def delegate(content: Any)(f: PartialFunction[Any, Route]): Route = {
+  def delegate[T](content: T)(f: PartialFunction[T, Route]): Route = {
     delegators(defaultDelegateType)(content)(f)
   }
 
-  def delegate(content: Future[_])(f: PartialFunction[Any, Route]): Route = {
+  def delegate[T](content: Future[T])(f: PartialFunction[T, Route]): Route = {
     delegators(defaultDelegateType)(content)(f)
   }
 }

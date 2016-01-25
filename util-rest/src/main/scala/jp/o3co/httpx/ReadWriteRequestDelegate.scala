@@ -40,19 +40,19 @@ trait ReadWriteRequestDelegate extends RequestDelegate {
   }
 
 
-  def delegateRead(content: Any)(f: PartialFunction[Any, Route]): Route = {
+  def delegateRead[T](content: T)(f: PartialFunction[T, Route]): Route = {
     readRequestDelegator(content)(f)
   }
 
-  def delegateRead(content: Future[_])(f: PartialFunction[Any, Route]): Route = {
+  def delegateRead[T](content: Future[T])(f: PartialFunction[T, Route]): Route = {
     readRequestDelegator(content)(f)
   }
 
-  def delegateWrite(content: Any)(f: PartialFunction[Any, Route]): Route = {
+  def delegateWrite[T](content: T)(f: PartialFunction[T, Route]): Route = {
     writeRequestDelegator(content)(f)
   }
 
-  def delegateWrite(content: Future[_])(f: PartialFunction[Any, Route]): Route = {
+  def delegateWrite[T](content: Future[T])(f: PartialFunction[T, Route]): Route = {
     writeRequestDelegator(content)(f)
   }
 }

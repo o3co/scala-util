@@ -15,7 +15,7 @@ import spray.routing.Route
 trait SimpleRequestDelegator extends RequestDelegator {
   implicit def statusMessageMarshaller: Marshaller[StatusMessage]
 
-  val defaultResponseHandler: PartialFunction[Any, Route] = {
+  def defaultResponseHandler: PartialFunction[Any, Route] = {
     case x: String  => complete(StatusMessage(StatusCodes.OK, x))
     case x: Int     => complete(StatusMessage(StatusCodes.OK, x))
     case x: Double  => complete(StatusMessage(StatusCodes.OK, x))
@@ -25,7 +25,7 @@ trait SimpleRequestDelegator extends RequestDelegator {
     case other      => throw new DelegateException(s"Unhandled response: $other")
   }
 
-  override def apply(content: Any)(handler: PartialFunction[Any, Route]): Route = 
+  override def apply[T](content: T)(handler: PartialFunction[T, Route]): Route = 
     (handler orElse defaultResponseHandler)(content)
 }
 

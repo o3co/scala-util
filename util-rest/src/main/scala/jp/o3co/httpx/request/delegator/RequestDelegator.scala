@@ -11,12 +11,12 @@ trait RequestDelegator {
 
   implicit def executionContext: ExecutionContext
 
-  def apply(content: Any)(handler: PartialFunction[Any, Route]): Route = handler(content)
+  def apply[T](content: T)(handler: PartialFunction[T, Route]): Route = handler(content)
 
-  def apply(content: Future[_])(handler: PartialFunction[Any, Route]): Route = {
+  def apply[T](content: Future[T])(handler: PartialFunction[T, Route]): Route = {
     onComplete(OnCompleteFutureMagnet(content)) {
       // Get separate Future[_] from Any, so can handle with polyphenism(param future overload) 
-      case Success(ret: Future[_]) => apply(ret)(handler)
+      //case Success(ret: Future[_]) => apply(ret)(handler)
       case Success(ret) => apply(ret)(handler)
       case Failure(ex)  => throw ex
     }

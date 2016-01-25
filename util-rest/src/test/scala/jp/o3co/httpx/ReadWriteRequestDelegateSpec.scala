@@ -102,14 +102,14 @@ class ReadWriteRequestDelegateSpec extends Specification with Specs2RouteTest wi
         status should be equalTo StatusCodes.BadRequest
       }
 
-      // Recursive futures
-      Get() ~> testRoute(delegateRead(Future(Future(Future("hello")))) {
-        case "hello" => complete(StatusCodes.OK)
-        case other   => complete(StatusCodes.BadRequest)
-      }) ~> check {
-        //status = StatusCodes.OK
-        status should be equalTo StatusCodes.OK
-      }
+      //// Recursive futures
+      //Get() ~> testRoute(delegateRead(Future(Future(Future("hello")))) {
+      //  case "hello" => complete(StatusCodes.OK)
+      //  case other   => complete(StatusCodes.BadRequest)
+      //}) ~> check {
+      //  //status = StatusCodes.OK
+      //  status should be equalTo StatusCodes.OK
+      //}
 
       Get() ~> testRoute(delegateWrite(Future("hello")) {
         case "hello" => complete(StatusCodes.OK)
@@ -127,14 +127,14 @@ class ReadWriteRequestDelegateSpec extends Specification with Specs2RouteTest wi
         status should be equalTo StatusCodes.BadRequest
       }
 
-      // Recursive futures
-      Get() ~> testRoute(delegateWrite(Future(Future(Future("hello")))) {
-        case "hello" => complete(StatusCodes.OK)
-        case other   => complete(StatusCodes.BadRequest)
-      }) ~> check {
-        //status = StatusCodes.OK
-        status should be equalTo StatusCodes.OK
-      }
+      //// Recursive futures
+      //Get() ~> testRoute(delegateWrite(Future(Future(Future("hello")))) {
+      //  case "hello" => complete(StatusCodes.OK)
+      //  case other   => complete(StatusCodes.BadRequest)
+      //}) ~> check {
+      //  //status = StatusCodes.OK
+      //  status should be equalTo StatusCodes.OK
+      //}
     }
   }
 }
