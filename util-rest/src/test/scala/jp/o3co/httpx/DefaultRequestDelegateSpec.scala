@@ -5,7 +5,7 @@ import org.specs2.specification.Scope
 import spray.routing.{Route, StandardRoute, RequestContext}
 import spray.http.StatusCodes
 import scala.concurrent.{ExecutionContext, Future}
-import jp.o3co.httpx.request.delegator.RequestDelegator
+import jp.o3co.httpx.request.delegator.SimpleRequestDelegator
 import spray.routing.HttpService
 import spray.testkit.Specs2RouteTest
 
@@ -13,9 +13,9 @@ class DefaultRequestDelegateSpec extends Specification with Specs2RouteTest with
 
   def actorRefFactory = system
 
-  defaultRequestDelegator = new RequestDelegator() {
-    override val executionContext = ExecutionContext.Implicits.global
-  }
+  defaultRequestDelegator = new SimpleRequestDelegator {}
+
+  implicit val executionContext = ExecutionContext.Implicits.global
 
   def testRoute(r: Route) = sealRoute(get {
     pathEndOrSingleSlash {

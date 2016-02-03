@@ -1,11 +1,10 @@
 package jp.o3co.httpx.request.delegator
 
-import jp.o3co.http.StatusMessage
+//import jp.o3co.http.StatusMessage
 import scala.concurrent.{ExecutionContext, Future}
-import spray.http.{StatusCode, StatusCodes}
-import spray.httpx.marshalling.Marshaller
-import spray.routing._
-import spray.routing.directives.RouteDirectives._
+//import spray.http.{StatusCode, StatusCodes}
+//import spray.routing._
+//import spray.routing.directives.RouteDirectives._
 import spray.routing.Route
 
 /**
@@ -13,25 +12,12 @@ import spray.routing.Route
  *
  */
 trait SimpleRequestDelegator extends RequestDelegator {
-  implicit def statusMessageMarshaller: Marshaller[StatusMessage]
 
-  def defaultResponseHandler: PartialFunction[Any, Route] = {
-    case x: String  => complete(StatusMessage(StatusCodes.OK, x))
-    case x: Int     => complete(StatusMessage(StatusCodes.OK, x))
-    case x: Double  => complete(StatusMessage(StatusCodes.OK, x))
-    case x: Float   => complete(StatusMessage(StatusCodes.OK, x))
-    case x: Long    => complete(StatusMessage(StatusCodes.OK, x))
-    case x: Boolean => complete(StatusMessage(StatusCodes.OK, x))
-    case other      => throw new DelegateException(s"Unhandled response: $other")
-  }
-
-  override def apply[T](content: T)(handler: PartialFunction[T, Route]): Route = 
-    (handler orElse defaultResponseHandler)(content)
+  override def apply[T](content: T)(handler: T => Route): Route = handler(content)
 }
 
 object SimpleRequestDelegator {
-  def apply()(implicit smm: Marshaller[StatusMessage], ec: ExecutionContext) = new SimpleRequestDelegator {
-    override val statusMessageMarshaller = smm
-    override val executionContext = ec
-  }
+
+  def apply() = new SimpleRequestDelegator {}
 }
+

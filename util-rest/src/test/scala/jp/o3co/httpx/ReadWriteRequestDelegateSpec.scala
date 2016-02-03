@@ -5,7 +5,7 @@ import org.specs2.specification.Scope
 import spray.routing.{Route, StandardRoute, RequestContext}
 import spray.http.StatusCodes
 import scala.concurrent.{ExecutionContext, Future}
-import jp.o3co.httpx.request.delegator.RequestDelegator
+import jp.o3co.httpx.request.delegator.SimpleRequestDelegator
 import spray.routing.HttpService
 import spray.testkit.Specs2RouteTest
 
@@ -13,9 +13,9 @@ class ReadWriteRequestDelegateSpec extends Specification with Specs2RouteTest wi
 
   def actorRefFactory = system
 
-  val _default = new RequestDelegator() {
-    override val executionContext = ExecutionContext.Implicits.global
-  }
+  val _default = new SimpleRequestDelegator {}
+
+  implicit val executionContext = ExecutionContext.Implicits.global
   setReadWriteRequestDelegator(_default)
 
   def testRoute(r: Route) = sealRoute(get {
@@ -28,9 +28,8 @@ class ReadWriteRequestDelegateSpec extends Specification with Specs2RouteTest wi
 
   "ReadWriteDelegate" should {
     "set/get readRequestDelegator" in {
-      val tmp  = new RequestDelegator() {
-        override val executionContext = ExecutionContext.Implicits.global
-      }
+      val tmp  = new SimpleRequestDelegator {}
+
       readRequestDelegator !== tmp
 
       readRequestDelegator = tmp
@@ -40,9 +39,7 @@ class ReadWriteRequestDelegateSpec extends Specification with Specs2RouteTest wi
       true
     }
     "set/get writeRequestDelegator" in {
-      val tmp  = new RequestDelegator() {
-        override val executionContext = ExecutionContext.Implicits.global
-      }
+      val tmp  = new SimpleRequestDelegator {}
       readRequestDelegator !== tmp
 
       readRequestDelegator = tmp
