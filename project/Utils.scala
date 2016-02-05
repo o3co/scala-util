@@ -12,6 +12,7 @@ object Utils extends Build
     .aggregate(
       // 
       Utils.box,
+      Utils.config,
       Utils.counter,
       Utils.generator,
       Utils.rest
@@ -19,6 +20,22 @@ object Utils extends Build
     .settings(
       aggregate in update := false
     )
+
+  lazy val config = Project("util-config", file("util-config"))
+    .settings(basicSettings: _*)
+    .settings(
+      libraryDependencies ++= 
+        compile (
+          scalaReflect
+        ) ++
+        provided (
+          typesafeConfig
+        ) ++
+        test(
+          specs2
+        )
+    )
+
   lazy val counter = Project("util-counter", file("util-counter"))
     .settings(basicSettings: _*)
     .settings(

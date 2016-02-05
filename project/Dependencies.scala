@@ -22,5 +22,6 @@ object Dependencies {
   val specs2          = "org.specs2"             %% "specs2-core"     % "2.4.17"
   val sprayRouting    = "io.spray"            %% "spray-routing"   % "1.3.3"
   val sprayTestKit    = "io.spray"            %% "spray-testkit"   % "1.3.3"
+  val typesafeConfig  = "com.typesafe"        %  "config"          % "1.2.1"
 }
 
