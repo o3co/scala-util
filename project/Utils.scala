@@ -21,6 +21,21 @@ object Utils extends Build
       aggregate in update := false
     )
 
+  lazy val box = Project("util-box", file("util-box"))
+    .settings(basicSettings: _*)
+    .settings(
+      libraryDependencies ++= 
+        compile (
+          scalaReflect
+        ) ++
+        provided (
+          json4sCore
+        ) ++ 
+        test (
+          specs2
+        )
+    )
+
   lazy val config = Project("util-config", file("util-config"))
     .settings(basicSettings: _*)
     .settings(
@@ -72,20 +87,5 @@ object Utils extends Build
           json4sNative 
         )
 
-    )
-
-  lazy val box = Project("util-box", file("util-box"))
-    .settings(basicSettings: _*)
-    .settings(
-      libraryDependencies ++= 
-        compile (
-          scalaReflect
-        ) ++
-        provided (
-          json4sCore
-        ) ++ 
-        test (
-          specs2
-        )
     )
 }
