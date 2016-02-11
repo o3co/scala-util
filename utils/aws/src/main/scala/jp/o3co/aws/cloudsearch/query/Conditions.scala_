@@ -1,0 +1,449 @@
+trait Expression 
+trait PrimaryExpression
+trait CompoundExpression extends Expression
+trait ComparisonExpression extends Expression
+trait ComparisonOperator(op: Operator, left: VariableStatement, right: VarDecr) extends ComparisonExpression
+trait LogicalExpression extends Expression
+trait AssignmentOperator(left: Variable, right: Variable)
+trait ArithmeticExpression
+trait ArithmeticOperator(op: Operator, left: Variable, right: Variable) extends ArithmeticExpression
+
+/**
+ * With this support, VariableExpression can be a ValueExpression.
+ * On OperationExpression, 
+ *   "variable1 = variable2"
+ * On ComparisonExpression,
+ *   "variable1 == variable2"
+ *
+ *
+ */
+trait VariableAsValueSupport {
+  case class VariableAsValueExpression() {
+
+  }
+  implicit def variableAsValue()
+}
+
+/**
+ *
+ */
+trait ArithmeticHelper {
+  def +(left: Variable, right: Variable)
+}
+
+/**
+ * 値式　具体的な値を表現する
+ */
+trait ValueDecralation extends ValueExpression
+/**
+ * 変数: フィールド
+ */
+trait Field(fieldname: String) extends VariableDeclaraion
+/**
+ *
+ */
+trait Value[T](value: T) extends StaticVariable[T](value) with PrimaryExpression
+trait Fomular
+
+
+trait Expression {
+  def optimize(optimizer: Optimizer): Expression = this
+}
+
+
+trait CompoundExpression extends Expression {
+  def exprs: Traversable[Expression]
+}
+
+/**
+ * What client directly define the string
+ *
+ * {{{
+ *   val expr = Literal("(AND "you can "define any here" "This literal pass to the service directly")")
+ * }}}
+ */
+case class Literal(literal: String) extends Expression
+
+/**
+ * Logical Expression
+ * Fundamental Expression over services.
+ */
+trait LogicalExpression extends Expression {
+  /**
+   * Optimize Logical Expression by QueryBulider
+   */
+  def optimize(optimizer: Optimizer) = {
+    case opt: LogicalExpressionOptimizer => opt.optLogicalExpression(this)
+    case _ => this
+  }
+
+  def reduceRecursiveExpression(): this.type
+}
+
+case class And(exprs: Expression *) extends CompoundExpression with LogicalExpression {
+  def mergeComparison(comparison: Comparison, comparison: Comparison): Comparison = comparisonA match  {
+    case Equals(f, v) => 
+    case NotEquals(f, v) => 
+    case GreaterThan(f, v) => 
+    case GreaterThanOrEquals(f, v) => 
+    case LessThan(f, v) => 
+    case LessThanOrEquals[T](f, v) if value == v => this
+    case Range(f, min, iMin, max, iMax) => [_] => throw new IllegalOperatorException(s"Invalid merge on Equals($this, $other)")
+  }
+  def optimize = {
+    exprs
+      // Reduce recursive logical expression
+      .map {
+        case recursive: this.type => recursive.exprs
+        case _ => expr
+      }
+      .flatten
+      // Reduce Comparisons
+      .groupBy {
+        case c: Comparison => 0
+        case _ => 1
+      }
+      .map {
+        case (0, comps) =>
+          comps
+            .map(_: ComparisonExpression)
+            .groupBy(comp => comp.field)
+            .map { (fieldName, fieldComps) => 
+              fieldComps.reduce((left, right) => left.marge(right))
+            }
+          }
+        case _ => _ 
+      }
+  }
+  def reduceRecursiveExpression(): this.type = {
+    exprs
+      .map { expr => 
+        case x: this.type => x.exprs 
+        case _ => expr
+      }
+      .flatten
+  }
+}
+case class Or(exprs: Expression *) extends CompoundExpression with LogicalExpression {
+  def reduceRecursiveExpression(): this.type = {
+    exprs
+      .map { expr => 
+        case Or(others) => others
+        case _ => expr
+      }
+      .flatten
+  }
+}
+case class Not(expr: Expression) extends LogicalExpression {
+  def reduceRecursiveExpression(): this.type = {
+    exprs
+      .map { expr => 
+        case Not(in) => in 
+        case _ => expr
+      }
+      .flatten
+  }
+}
+
+/**
+ * ComparisonExpression is Some kind of Comparison with specified field.
+ */
+trait ComparisonExpression[T] extends Expression {
+
+  val valueType: TypeTag[T]
+
+  def field: FieldExpression
+}
+abstract class AbstractComparison[T: TypeTag] extends ComparisonExpression[T] {
+  val valueType = implicitly[TypeTag[T]]
+}
+case class Equals[T](field: FieldExpression, value: SingleValueExpression[T]) extends ComparisonExpression
+case class NotEquals[T](field: FieldExpression, value: SingleValueExpression[T]) extends ComparisonExpression
+case class Greater[T](field: FieldExpression, value: SingleValueExpression[T]) extends ComparisonExpression
+case class GreaterThan[T](field: FieldExpression, value: SingleValueExpression[T]) extends ComparisonExpression
+case class Less[T](field: FieldExpression, value: SingleValueExpression[T]) extends ComparisonExpression
+case class LessThan[T](field: FieldExpression, value: SingleValueExpression[T]) extends ComparisonExpression
+case class Range[T](field: FieldExpression, min: SingleValueExpression[T], includeMin: Boolean, max: SingleValueExpression[T], includeMax: Boolean) extends Expression
+
+//object CloudSearch {
+//  case class Range[T](field: FieldExpression, min: SingleValueExpression[T], max: SingleValueExpression[T])
+//  case class Term(field: FieldExpression, value: SingleValueExpression[String], boost: Int)
+//}
+
+trait FieldExpression
+case class Field(name: String) extends Expression
+
+trait ValueExpression extends Expression
+case class SingleValue[T](value: T) extends Expression
+case class CompoundValues[T](values: Seq[T]) extends Expression
+
+// FullTextSearch Operator
+trait FTSExpression extends Expression
+
+
+trait QueryBuilder {
+  def bulid(expr: Expression): String 
+
+  /**
+   * Start Optimization for expressions 
+   */
+  def optimize: Expression
+
+  def optimize(expr: Expression): Expression = expr.optimize(this)
+}
+trait LogicalExpressionBuilder {
+  def buildLogicalExpression(expr: LogicalExpression): String
+}
+trait LogicalExpressionOptimizer {
+  def optLogicalExpression(expr: LogicalExpression): Expression = expr
+
+  def mergeAndComparisons(e
+}
+
+trait ComparisonExpressionBuilder {
+  def buildComparisonExpression(expr: ComparisonExpression): String
+}
+
+trait LogicalExpressionOptimizer {
+  def optComparisonExpression(expr: ComparisonExpression): Expression = expr
+}
+
+trait FTSExpressionBuilder {
+  /**
+   * Build Query for Full-Text-Search Operation 
+   */
+  def buildFTSOperation(expr: FTSExpression): String
+}
+trait FTSExpressionOptimizer extends optimizer {
+  def optimizeFTSOperation(expr: FTSOperationExpression): Expression = expr
+}
+
+trait ValueExpressionBuilder {
+  def buildValue(expr: ValueExpression): String 
+}
+
+trait ValueExpressionOptimizer {
+  def optimizeValueExpression[T](expr: ValueExpression[T]): Expression = expr
+}
+
+trait ValueFormatter[T] extends Function[T, String] {
+  def format(value: T): String
+}
+object ValueFormatter {
+  def apply[T](f: SingleValueExpression[T] => String) = new ValueFormatter[T] {
+    override def apply(value: T): String = f(value)
+  }
+}
+
+trait DefaultValueFormatters {
+
+  implicit def implicitConversionAsFormatter()
+  implicit val stringFormatter = ValueFormatter[String]({expr => 
+    s"'${expr.value}'"
+  })
+  implicit val booleanFormatter = ValueFormatter[Boolean]({expr => 
+    expr.value.toString
+  })
+  implicit def numericFormatter[T: Numeric](expr: SingleValueExpression[T]): String = s"${expr.value}}"
+}
+
+trait StructuredQueryBuilder extends QueryBuilder 
+  with LogicalExpressionBuilder 
+  with ComparisonExpressionBuilder
+  with FTSExpressionBuilder 
+  with ValueExpressionBulider
+  with CloudSearchDefaultValueFormatters
+  with Optimizer
+  with LogicalExpressionOptimizer
+{
+  def optLogicalExpression(expr: LogicalExpression) = {
+    case And(exprs) => 
+      exprs
+        .groupBy { expr => 
+          case c: Comparison => "comparison"
+          case _ => "other"
+        }
+
+      exprs
+        .reduceComparisonExpressionsByField{ (field, comparisons) => 
+        
+        }
+        .reduceRecursiveExpression()
+    case Or(exprs)  => 
+      reduceComparisonExpressions(exprs)
+    case Not(e)  =>
+      if(e.isInstanceOf[Not]) e
+      else expr
+  }
+
+  def redudeComparisonExpressions()
+      (if(exprs.size > 0) {
+        // Reduce ComparisonExpressions 
+        exprs = reduceComparisonExpressions(exprs)
+      } else exprs)
+      if(exprs.size <= 1) {
+        exprs.headOption
+      }
+
+    exprs
+      .map {
+        // Convert ComparisonExpression to Range 
+        case expr: GreaterThan | GreaterOrEquals | LessThan | LessThanOrEquals => expr.toRange 
+        case expr => expr
+      }
+      .groupBy(expr => expr.field.name)
+  }
+
+  
+  def build(expr: Expression): String = optimize(expr) match {
+    case MatchAll             => "matchall"
+    case e: FTSOperation      => build(e)
+    case e: LogicalExpression => build(e)
+    case e: FieldExpression   => build(e) 
+    case e: ValueExpression   => build(e) 
+  }
+
+  /**
+   *
+   */
+  def optimize(expr: Expression): Expression = expr match {
+    case compound: CompoundExpression => 
+      compound.copy(exprs = compound.exprs.map(e => optimize(e)))
+        .optimize(this)
+    case _ => expr.optimize(this)
+  }
+
+  def optimizeLogicalExpression(expr: LogicalExpression): Expression = expr match {
+    case andExpr: And => 
+      andExpr.exprs.groupBy(in => in.field.name)
+        .map { in => 
+        
+        }
+        .values
+        .flatten
+    case _ => super.optimize(expr)
+  }
+
+  def build(expr: ComparisonExpression): String = expr match {
+    case Equals(field, value) => s"${parseValue(field)}:${parseValue(value)}"
+    case _ => throw new Exception("Not supported")
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  def build(expr: LogicalExpression): String = expr match {
+    case And(exprs) => s"(and ${exprs.map(expr => build(expr)).mkString(" ")})"
+    case Or(exprs)  => s"(or ${exprs.map(expr => build(expr)).mkString(" ")})"
+    case Not(expr)  => s"(not $expr)"
+  }
+
+  def build(expr: FieldExpression): String = s"field=${expr.name}"
+
+  def build[T](expr: ValueExpression[T])(implicit vf: ValueFormatter[T]): String = vf.format(expr.value)
+
+  def build(expr: FTSExpression): String = expr match {
+    case Term(field, value, boost)           => buildFTSOperation("term", field, build(value), boost)
+    case Phrase(field, value, boost)         => buildFTSOperation("phrase", field, build(value), boost)
+    case Range(field, min, max, boost)       => buildFTSOperation("phrase", field, buildRangeValue(min.map(m => build(m)), max.map(m => build(m))), boost)
+    case Near(field, distance, value, boost) => s"(near field=${build(field)})"
+  }
+
+  def buildRangeValue(min: Option[String], max: Option[String]) = (min, max) match {
+    case (Some(n), Some(m)) => s"($n, $m)" 
+    case (Some(n), None)    => s"($n, }"
+    case (None, Some(m))    => s"{, $m)"
+    case (None, None)       => throw new ParseException("Either min or max has to be specified.")
+  }
+
+  def buildFTSOperation(op: String, field: FieldExpression, value: String, boost: Option[Int]) = boost match {
+    case Some(b) => s"($op $field boost=$b $value)"
+    case None    => s"($op $field $value)"
+  }
+}
+
+
+
+
+
+QueryCondition("")
+  .and("(range field=num [0,1])")
+  .or("(term field=title 'body')")
+
+Expression
+
+
+object Operators {
+  trait Logical
+  case object MatchAll extends Operator
+  case class Term()
+}
+
+case class Literal(value: String) extends Expression
+
+case class ValueExpr[T](value: T) 
+
+trait Expression
+
+trait ExpressionParser[A <: Expression] extends Function[A, String] {
+  def apply(value: A): String = parse(value)
+
+  def parse(expr: A): String
+}
+
+trait ValueParser[T] extends Parser[ValueExpression[T]] {
+  def parse(expr: ValueExpression[T]): String 
+}
+object ValueParser {
+  def apply[T](f: T => String) = new ValueParser {
+    def parse(expr: ValueExpression[T]): String = { expr => 
+      f(expr.value)
+    }
+}
+
+trait DefaultValueParsers {
+  implicit def functionToValueParser(f: T => String): ValueParser[T, String] = ValueParser(f)
+
+  implicit val intParser: ValueParser[Int]        = {value => value.toString}
+  implicit val shortParser: ValueParser[Short]    = {value => value.toString}
+  implicit val longParser: ValueParser[Long]      = {value => value.toString}
+  implicit val doubleParser: ValueParser[Double]  = {value => value.toString}
+  implicit val floatParser: ValueParser[Float]    = {value => value.toString}
+  implicit val stringParser: ValueParser[String]  = {value => s"'${value.stripAffix(",")}'"}
+
+  implicit class RichString(str: String) {
+    def stripAffix(affix: String) = str.stripPrefix(affix).stripSuffix(affix) 
+  }
+}
+
+trait ConditionParser {
+  val parser: ConditionParser = this
+
+  def parse(condition: Expression) = {
+    condition match {
+      case c: Literal         => parseLiteral(c)
+      case c: ValueExpression => parseValue(v)
+    }
+  }
+
+  def parseLiteral(literal: Literal): String = literal.value
+
+  def parseOperator(op: OperatorExpression): String = op match {
+    case LogicalOperator(exprs) => s"(${op.name} ${operands.mkString(" ")})"
+    case (field, value, boost)   =>  
+  }
+
+  def parseValue[T](expr: ValueExpression[T])(implicit vp: ValueParser[T]) = {
+    vp.parse(expr)
+  }
+
+  implicit object SeqParser extends ValueParser[Seq[_]] {
+    def parse(expr: ValueExpression[Seq[_]]) = {expr => 
+      expr.value.map { value => 
+        parser.parseValue(value)
+      }
+    }
+  }
+
+}
+def parseValue[T](expr: ValueExpr[T])(implicit vp: ValueParser[T]) = vp.parse(expr)

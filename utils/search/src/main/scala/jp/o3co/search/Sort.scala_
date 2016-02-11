@@ -1,0 +1,100 @@
+package jp.o3co.search
+
+sealed trait SortBy {
+
+  /**
+   * Append SortBy 
+   */
+  def +(other: SortBy): SortByFields
+}
+
+/**
+ *
+ */
+sealed trait Order
+
+/**
+ *
+ */
+object Order {
+  case object ASC extends Order
+  case object DESC extends Order
+
+  val Default = ASC
+}
+
+trait SortByParser extends Function1[String, SortBy] {
+
+  final def apply(notation: String): SortBy = parse(notation)
+
+  def parse(notation: String): SortBy
+}
+trait SortByFieldParser extends SortByParser 
+trait SortByFieldsParser extends SortByParser
+
+class DefaultSortByFieldsParser extends SortByFieldsParser {
+  val fieldParser = new DefaultSortByFieldParser
+ 
+  def parse(notation: String) = SortByFields(notation.split(',').map(f => fieldParser.parse(f)).toSeq)
+}
+/**
+ * Parse only a field
+ */
+class DefaultSortByFieldParser extends SortByFieldParser {
+  val pattern = """^(.*)([+|-]?)$""".r
+
+  def parse(notation: String): SortByField = {
+    notation match {
+      case pattern(field, order) => 
+        SortByField(
+          field, 
+          order match {
+            case "" => Order.Default
+            case n  => parseOrderNotation(n)
+          }
+        )
+      case _ => throw new IllegalArgumentException(s"Notation '$notation' is not a valid sort field.")
+    }
+  }
+
+  def parseOrderNotation(order: String) = order match {
+    case "+" => Order.ASC
+    case "-" => Order.DESC
+    case _   => throw new Exception(s"Invalid order notation $order")
+  }
+}
+
+case class SortByField(fieldName: String, order: Order) extends SortBy {
+  /**
+   *
+   */
+  def +(other: SortBy): SortByFields = other match {
+    case f:  SortByField  => SortByFields(Seq(this, f))
+    case fs: SortByFields => SortByFields(Seq(this) ++  fs.fields)
+  }
+}
+
+case class SortByFields(fields: Seq[SortByField]) extends SortBy {
+
+  /**
+   *
+   */
+  def +(other: SortBy): SortByFields = other match {
+    case f:  SortByField   => SortByFields(fields :+ f)
+    case fs: SortByFields  => SortByFields(fields ++  fs.fields)
+  }
+}
+  
+trait Helper {
+
+  /**
+   * Helper method to create SortByField with ASC 
+   */
+  def asc(fieldname: String)  = SortByField(fieldname, Order.ASC)
+
+  /**
+   * Helper method to create SortByField with DESC 
+   */
+  def desc(fieldname: String) = SortByField(fieldname, Order.DESC)
+}
+

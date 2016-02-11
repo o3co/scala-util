@@ -10,6 +10,7 @@ object Build extends Build
     .settings(basicSettings: _*)
     .settings(noPublishing: _*)
     .aggregate(
+      Samples.root,
       Utils.root
     )
     .settings(

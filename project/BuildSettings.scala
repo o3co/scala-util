@@ -17,7 +17,8 @@ object BuildSettings {
       //sbtPlugin     := true,
       parallelExecution in Test := false,
       //javaOptions in Test += "-Dorg.slf4j.simpleLogger.defaultLogLevel=OFF",
-      updateOptions in Global := updateOptions.in(Global).value.withCachedResolution(true)
+      updateOptions in Global := updateOptions.in(Global).value.withCachedResolution(true),
+      scalacOptions in (Compile,doc) := Seq("-groups", "-implicits")
     )
 
   //lazy val moduleSettings = seq(

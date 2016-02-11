@@ -1,0 +1,20 @@
+
+
+trait SearchEngine
+
+trait CloudSearchLike {
+  val client = CloudSearch()
+
+}
+
+trait CloudSearchIndexerActorLike extends IndexerActorLike with CloudSearchLike {
+
+  def index(documents: T): Future[Unit] = {
+    client.uploadDocuments(documents)
+      .map(_ => (): Unit)
+  }
+
+  def receive = receiveCommand
+}
+
+

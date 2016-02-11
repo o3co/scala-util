@@ -1,0 +1,47 @@
+import scala.reflect.runtime.universe._
+import scala.reflect.runtime.universe
+
+abstract class SimpleClassAccessor[T: ClassTag] {
+
+  def cTag: ClassTag[T] = implicitly[ClassTag[T]]
+
+  protected val runtimeMirror = universe.runtimeMirror(cTag.runtimeClass.getClassLoader)
+
+  /**
+   * Map of fieldname vs field 
+   */
+  protected lazy val _fields = runtimeMirror.classSymbol(cTag.runtimeClass).typeSignature
+    .members.collect {
+      case m: MethodSymbol if m.isCaseAccessor && m.isPublic => m
+    }
+    .map(f => (f.name.toString, f)).toMap
+
+  /**
+   * Get list of Fieldnames of Class
+   */
+  def fieldnames: Iterable[String] = _fields.keys
+
+  /**
+   * Get field type
+   */
+  protected def _getFieldType(fieldname: String) = _fields(fieldname).returnType
+
+  /**
+   * Get the field value of the object
+   */
+  protected def _fieldValue(obj: T, fieldname: String) = {
+    val objMirror = runtimeMirror.reflect(obj)
+    objMirror.reflectField(_fields(fieldname).getter.asMethod)
+  }
+}
+
+abstract class Sorting[T: ClassTag] extends SimpleClassAccessor[T] {
+}
+
+case class Term(name: String)
+case class TermSorting() extends Sorting[Term] {
+    
+}
+
+case class GetTerms()
+

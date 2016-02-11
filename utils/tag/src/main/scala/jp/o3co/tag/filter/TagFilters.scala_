@@ -1,0 +1,50 @@
+
+trait TagFilterBuilder {
+  def build(config: Config)
+}
+
+trait TagFilterBuilderFactory
+
+trait TagFilterBuilderFactory {
+  class Builder extends TagFilterBuilder {
+    def build(config: Config) = {
+      Seq() +
+        (if(config.hasPath("dictionary")) {
+          Some(ToNameDictionaryTagFilter(TagDictionaryAdapter(config.getString("dictionary"))))
+        } else {
+          None
+        }) + 
+        (if(config.hasPath("prefix")) {
+          Some(PrependTagNameFilter(config.getString("prefix")))
+        } else {
+          None
+        })
+        .collect {
+          case Some(f) => f
+        }
+        .reduceRight((left, right) => TagFilterChain(left, right))
+    }
+  }
+
+  def apply() = new Builder() 
+}
+
+object TagFilters {
+  def apply(config: Config, builderFactory: TagFilterBuilderFactory) = {
+    config.entrySet.foreach { entry => 
+      val builder = builderFactory()
+      (entry.getKey(), builder.build(config)) 
+    }
+    .toMap
+  }
+}
+
+implicit class Tags(tags: Set[TagName]) {
+  def toNamesFor(filterName: String)(implicit filters: Map[String, TagFilter]) = {
+    filters(filterName).reverse.filter(tags)
+  }
+
+  def toLabelsFor(filterName: String)(implicit filters: Map[Srting, TagFilter]) = {
+    filters(filterName).filter(tags)
+  }
+}
