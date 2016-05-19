@@ -1,6 +1,6 @@
 package jp.o3co.net
 
-class DomainName(val name: String) {
+case class DomainName(val name: String) {
   if(!name.matches(DomainName.Pattern)) {
     throw new IllegalArgumentException(s"$name is invalid domain name.")
   }
@@ -15,12 +15,12 @@ class DomainName(val name: String) {
  *
  */
 object DomainName {
-  /**
-   *
-   */
-  def apply(name: String): DomainName = new DomainName(name)
+  ///**
+  // *
+  // */
+  //def apply(name: String): DomainName = new DomainName(name)
 
-  def unapply(domain: DomainName): Option[(String)] = Some((domain.name))
+  //def unapply(domain: DomainName): Option[(String)] = Some((domain.name))
 
   /**
    *

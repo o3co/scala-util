@@ -20,6 +20,14 @@ trait SlickExtensions extends SlickJDBCEnvironment{
   val profile: JdbcProfile
   import profile.api._
 
+  implicit class OptionalConditionExtension[A: BaseTypedType](condition: Option[Condition[A]]) {
+    
+    def apply(column: Rep[A]): Rep[Boolean] = condition match {
+      case Some(c) => c(column)
+      case None    => true
+    }
+  }
+
   /**
    * Implicit class to append functionality to convert condition to query filter
    */

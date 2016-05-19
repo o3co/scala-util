@@ -1,9 +1,19 @@
 package jp.o3co.converter
 
 import java.util.UUID
-import java.nio.ByteBuffer
 import org.apache.commons.codec.binary.Base64
 
+class UUID2Base64Converter(urlSafe: Boolean = true) extends Converter[UUID, String] {
+
+  import jp.o3co.converter.Implicits.UUID2ByteArrayConverter
+
+  def convert = { uuid => 
+    urlSafe match {
+      case true  => Base64.encodeBase64URLSafeString(uuid.toBytes)
+      case false => Base64.encodeBase64String(uuid.toBytes)
+    }
+  }
+}
 
 class UUID2Base64ShortConverter(defaultLength: Int = 6) extends UUID2Base64Converter(true) {
 

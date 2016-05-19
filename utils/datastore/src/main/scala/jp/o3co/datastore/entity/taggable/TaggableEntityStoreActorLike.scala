@@ -19,10 +19,7 @@ trait TaggableEntityStoreActor[K, E <: BaseEntity[K]] extends EntityStoreActorLi
 
   val protocol: EntityStoreProtocolLike[K, E] with TagStoreProtocolLike[K] with TaggableEntityStoreProtocolLike[K, E]
 
-  def receiveOther: Receive = {
-    case x => 
-      throw new Exception(s"Unsupported event $x is received")
-  }
+  //override def receiveExtensions: Receive = Actor.emptyBehavior
 
   def receive: Receive = receiveTaggableEntityStoreCommand
         .orElse(receiveEntityStoreCommand)
