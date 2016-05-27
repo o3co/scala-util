@@ -4,7 +4,7 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import scala.collection.JavaConverters._
 
-trait BaseApplicationSettings {
+trait BaseApplicationSettings extends Settings {
   def config: Config
 
   def defaultConfig: Config = ConfigFactory.load().withFallback(ConfigFactory.defaultReference)

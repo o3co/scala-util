@@ -4,17 +4,17 @@ package taggable
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import jp.o3co.tag.store.TagStoreLike 
+import jp.o3co.tag.owner.TagOwnerLike 
 import jp.o3co.tag.{Tag, TagNameSet}
 
-trait TaggableEntityStore[K, E <: BaseEntity[K]] extends EntityStoreLike[K, E] with TagStoreLike[K] with TaggableEntityStoreLike[K, E] 
+trait TaggableEntityStore[K, E <: BaseEntity[K]] extends EntityStoreLike[K, E] with TagOwnerLike[K] with TaggableEntityStoreLike[K, E] 
 
 /**
  * Store pattern for TaggableEntity. 
  *  
  */
 trait TaggableEntityStoreLike[K, E <: BaseEntity[K]] extends EntityStoreComponents[K, E] {
-  //self: EntityStore[K, E] with TagStore[K] => 
+  //self: EntityStore[K, E] with TagOwner[K] => 
 
   /**
    *
@@ -34,10 +34,10 @@ trait TaggableEntityStoreLike[K, E <: BaseEntity[K]] extends EntityStoreComponen
 }
 
 /**
- * Provide base implementation of TaggableEntityStoreLike with combination of EntityStore and TagStore
+ * Provide base implementation of TaggableEntityStoreLike with combination of EntityStore and TagOwner
  */
 trait TaggableEntityStoreImplLike[K, E <: BaseEntity[K]] extends TaggableEntityStoreLike[K, E] {
-  self: EntityStoreLike[K, E] with TagStoreLike[K] =>
+  self: EntityStoreLike[K, E] with TagOwnerLike[K] =>
 
   implicit def executionContext: ExecutionContext
   
@@ -61,10 +61,10 @@ trait TaggableEntityStoreImplLike[K, E <: BaseEntity[K]] extends TaggableEntityS
     val fPrevEntity   = putEntityAsync(entity)
     val fPrevTags     = replaceTags(entity.entityKey, tags)
 
-    for {
+    (for {
       prevEntity <- fPrevEntity
       prevTags   <- fPrevTags
-    } yield prevEntity
+    } yield prevEntity)
   }//: Future[Option[Entity]]
 
   /**

@@ -22,28 +22,28 @@ trait KeyValueStoreActorLike[K, V] extends KeyValueStoreComponents[K, V] {
   def receiveKvsStoreCommand: Receive = {
     case Contains(key) => 
       containsAsync(key)
-        .map(exists => ContainsComplete(exists))
+        .map(exists => ContainsSuccess(exists))
         .recover {
           case e: Throwable => ContainsFailure(e)
         }
         .pipeTo(sender)
     case Get(key) => 
       getAsync(key)
-        .map(value => GetComplete(value))
+        .map(value => GetSuccess(value))
         .recover {
           case e: Throwable => GetFailure(e)
         }
         .pipeTo(sender)
     case Put(key, value) => 
       putAsync(key, value) 
-        .map(prev => PutComplete(prev))
+        .map(prev => PutSuccess(prev))
         .recover {
           case e: Throwable => PutFailure(e)
         }
         .pipeTo(sender)
     case Delete(key) => 
       deleteAsync(key)
-        .map(deleted  => DeleteComplete(deleted))
+        .map(deleted  => DeleteSuccess(deleted))
         .recover {
           case e: Throwable => DeleteFailure(e)
         }

@@ -27,42 +27,42 @@ trait EntityStoreActorLike[K, E <: BaseEntity[K]] extends EntityStoreComponents[
   def receiveEntityStoreCommand: Receive = {
     case EntityExists(key) => 
       entityExistsAsync(key)
-        .map(exists => EntityExistsComplete(exists))
+        .map(exists => EntityExistsSuccess(exists))
         .recover {
           case e: Throwable => EntityExistsFailure(e)
         }
         .pipeTo(sender())
     case GetKeys() => 
       getKeysAsync()
-        .map(keys => GetKeysComplete(keys))
+        .map(keys => GetKeysSuccess(keys))
         .recover {
           case e: Throwable => GetKeysFailure(e)
         }
         .pipeTo(sender())
     case GetEntity(key) => 
       getEntityAsync(key)
-        .map(entity => GetEntityComplete(entity))
+        .map(entity => GetEntitySuccess(entity))
         .recover {
           case e: Throwable => GetEntityFailure(e)
         }
         .pipeTo(sender())
     case GetEntities(keys) =>
       getEntitiesAsync(keys)
-        .map(entities => GetEntitiesComplete(entities))
+        .map(entities => GetEntitiesSuccess(entities))
         .recover {
           case e: Throwable => GetEntitiesFailure(e)
         }
         .pipeTo(sender())
     case PutEntity(entity) => 
       putEntityAsync(entity)
-        .map(prev => PutEntityComplete(prev))
+        .map(prev => PutEntitySuccess(prev))
         .recover {
           case e: Throwable => PutEntityFailure(e)
         }
         .pipeTo(sender())
     case DeleteEntity(key) => 
       deleteEntityAsync(key)
-        .map(deleted=> DeleteEntityComplete(deleted))
+        .map(deleted=> DeleteEntitySuccess(deleted))
         .recover {
           case e: Throwable => DeleteEntityFailure(e)
         }

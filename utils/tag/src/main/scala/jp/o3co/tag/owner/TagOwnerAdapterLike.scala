@@ -1,14 +1,14 @@
 package jp.o3co.tag
-package store
+package owner
 
 import akka.actor.ActorSelection 
 import akka.util.Timeout
 import akka.pattern.ask
 import scala.concurrent.ExecutionContext
 
-trait TagStoreAdapterLike[O] extends TagStore[O] {
+trait TagOwnerAdapterLike[O] extends TagOwner[O] {
 
-  val protocol: TagStoreProtocolLike[O]
+  val protocol: TagOwnerProtocolLike[O]
 
   import protocol._
 
@@ -37,7 +37,7 @@ trait TagStoreAdapterLike[O] extends TagStore[O] {
   def addTags(owner: Owner, tags: TagNameSet) = {
     (endpoint ? AddTags(owner, tags))
       .map {
-        case AddTagsComplete(updated) => updated
+        case AddTagsComplete() => ()
         case AddTagsFailure(cause)    => throw cause
       }
   }
@@ -45,7 +45,7 @@ trait TagStoreAdapterLike[O] extends TagStore[O] {
   def removeTags(owner: Owner, tags: TagNameSet) = {
     (endpoint ? RemoveTags(owner, tags))
       .map {
-        case RemoveTagsComplete(updated) => updated
+        case RemoveTagsComplete() => ()
         case RemoveTagsFailure(cause)    => throw cause
       }
   }
@@ -53,7 +53,7 @@ trait TagStoreAdapterLike[O] extends TagStore[O] {
   def removeAllTags(owner: Owner) = {
     (endpoint ? RemoveAllTags(owner))
       .map {
-        case RemoveAllTagsComplete(removed) => removed
+        case RemoveAllTagsComplete() => ()
         case RemoveAllTagsFailure(cause)    => throw cause
       }
   }
@@ -61,7 +61,7 @@ trait TagStoreAdapterLike[O] extends TagStore[O] {
   def replaceTags(owner: Owner, tags: TagNameSet) = {
     (endpoint ? ReplaceTags(owner, tags))
       .map {
-        case ReplaceTagsComplete(removed) => removed
+        case ReplaceTagsComplete() => ()
         case ReplaceTagsFailure(cause)    => throw cause
       }
   }

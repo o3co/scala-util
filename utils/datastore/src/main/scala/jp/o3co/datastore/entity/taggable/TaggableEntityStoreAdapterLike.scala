@@ -10,19 +10,19 @@ import akka.pattern.ask
 import akka.pattern.pipe
 
 import jp.o3co.tag.{TagName, TagNameSet}
-import jp.o3co.tag.store.{TagStoreAdapterLike, TagStoreProtocolLike}
+import jp.o3co.tag.owner.{TagOwnerAdapterLike, TagOwnerProtocolLike}
 
 
-trait TaggableEntityStoreAdapter[K, E <: BaseEntity[K]] extends EntityStoreAdapterLike[K, E] with TagStoreAdapterLike[K] with TaggableEntityStoreAdapterLike[K, E] {
+trait TaggableEntityStoreAdapter[K, E <: BaseEntity[K]] extends EntityStoreAdapterLike[K, E] with TagOwnerAdapterLike[K] with TaggableEntityStoreAdapterLike[K, E] {
   
-  val protocol: EntityStoreProtocolLike[K, E] with TagStoreProtocolLike[K] with TaggableEntityStoreProtocolLike[K, E]
+  val protocol: EntityStoreProtocolLike[K, E] with TagOwnerProtocolLike[K] with TaggableEntityStoreProtocolLike[K, E]
 }
 
 /**
  *
  */
 trait TaggableEntityStoreAdapterLike[K, E <: BaseEntity[K]] extends TaggableEntityStoreLike[K, E] {
-  //with EntityStoreAdapterLike[K, E] with TagStoreAdapterLike[K] {
+  //with EntityStoreAdapterLike[K, E] with TagOwnerAdapterLike[K] {
 
   val protocol: TaggableEntityStoreProtocolLike[EntityKey, E]
 
@@ -37,8 +37,8 @@ trait TaggableEntityStoreAdapterLike[K, E <: BaseEntity[K]] extends TaggableEnti
   def getEntityWithTagsAsync(key: EntityKey) = {
     (endpoint ? GetEntityWithTags(key))
       .map {
-        case GetEntityWithTagsComplete(Some(created), tags) => Option((created, tags)): Option[(Entity, TagNameSet)]
-        case GetEntityWithTagsComplete(None, _)  => None
+        case GetEntityWithTagsSuccess(Some(created), tags) => Option((created, tags)): Option[(Entity, TagNameSet)]
+        case GetEntityWithTagsSuccess(None, _)  => None
         case GetEntityWithTagsFailure(cause)     => throw cause
       }
   }
@@ -47,7 +47,7 @@ trait TaggableEntityStoreAdapterLike[K, E <: BaseEntity[K]] extends TaggableEnti
 
     (endpoint ? PutEntityWithTags(entity, tags))
       .map {
-        case PutEntityWithTagsComplete(prev)      => prev
+        case PutEntityWithTagsSuccess(prev)      => prev
         case PutEntityWithTagsFailure(cause)      => throw cause
       }
   }
@@ -55,7 +55,7 @@ trait TaggableEntityStoreAdapterLike[K, E <: BaseEntity[K]] extends TaggableEnti
   def deleteEntityWithTagsAsync(key: EntityKey) = {
     (endpoint ? DeleteEntityWithTags(key))
       .map {
-        case DeleteEntityWithTagsComplete(deleted)  => deleted 
+        case DeleteEntityWithTagsSuccess(deleted)  => deleted 
         case DeleteEntityWithTagsFailure(cause)     => throw cause
       }
   }

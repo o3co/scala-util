@@ -1,12 +1,12 @@
 package jp.o3co.tag
-package store
+package owner
 package impl
 
-trait TagStoreProxy[O] extends TagStore[O] with TagStoreProxyLike[O]
+trait TagOwnerProxy[O] extends TagOwner[O] with TagOwnerProxyLike[O]
 
-trait TagStoreProxyLike[O] extends TagStoreLike[O] {
+trait TagOwnerProxyLike[O] extends TagOwnerLike[O] {
 
-  def underlying: TagStoreLike[O]
+  def underlying: TagOwnerLike[O]
 
   /**
    * Check single tag is existed with owner
@@ -39,8 +39,8 @@ trait TagStoreProxyLike[O] extends TagStoreLike[O] {
   def replaceTags(owner: Owner, tags: TagNameSet) = underlying.replaceTags(owner, tags)
 }
 
-object TagStoreProxy {
-  def apply[O](tagStore: TagStore[O]) = new TagStoreProxy[O] {
+object TagOwnerProxy {
+  def apply[O](tagStore: TagOwner[O]) = new TagOwnerProxy[O] {
     override val underlying = tagStore
   }
 }

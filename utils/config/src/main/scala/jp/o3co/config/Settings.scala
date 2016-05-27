@@ -7,7 +7,7 @@ import java.util.Locale
 /**
  *
  */
-trait Settings extends Helpers with ExtendedConfig {
+trait Settings extends Implicits with ConfigExtensions {
 
   def config: Config
 

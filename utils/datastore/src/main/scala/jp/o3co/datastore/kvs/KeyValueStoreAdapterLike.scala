@@ -24,7 +24,7 @@ trait KeyValueStoreAdapterLike[K, V] extends KeyValueStore[K, V] {
   def containsAsync(key: Key) = {
     (endpoint ? Contains(key))
       .map {
-        case ContainsComplete(exists) => exists
+        case ContainsSuccess(exists) => exists
         case ContainsFailure(cause) => throw cause 
       }
   }
@@ -35,7 +35,7 @@ trait KeyValueStoreAdapterLike[K, V] extends KeyValueStore[K, V] {
   def getAsync(key: Key) = {
     (endpoint ? Get(key))
       .map {
-        case GetComplete(exists) => exists
+        case GetSuccess(exists) => exists
         case GetFailure(cause) => throw cause 
       }
   }
@@ -46,7 +46,7 @@ trait KeyValueStoreAdapterLike[K, V] extends KeyValueStore[K, V] {
   def putAsync(key: Key, value: Value) = {
     (endpoint ? Put(key, value))
       .map {
-        case PutComplete(exists) => exists
+        case PutSuccess(exists) => exists
         case PutFailure(cause) => throw cause 
       }
   }
@@ -57,7 +57,7 @@ trait KeyValueStoreAdapterLike[K, V] extends KeyValueStore[K, V] {
   def deleteAsync(key: Key) = {
     (endpoint ? Delete(key))
       .map {
-        case DeleteComplete(exists) => exists
+        case DeleteSuccess(exists) => exists
         case DeleteFailure(cause) => throw cause 
       }
   }

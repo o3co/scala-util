@@ -2,7 +2,7 @@ package jp.o3co.datastore
 package entity
 
 import scala.concurrent.ExecutionContext
-import akka.actor.ActorSelection
+import akka.actor.ActorRef
 import akka.util.Timeout
 import akka.pattern.ask
 import akka.pattern.pipe
@@ -10,13 +10,13 @@ import akka.pattern.pipe
 /**
  *
  */
-trait EntityStoreAdapterLike[K, E <: BaseEntity[K]] extends EntityStore[K, E] {
+trait ActorRefEntityStoreLike[K, E <: BaseEntity[K]] extends EntityStore[K, E] {
 
   val protocol: EntityStoreProtocolLike[EntityKey, Entity]
 
   import protocol._
   
-  def endpoint: ActorSelection
+  def endpoint: ActorRef 
 
   implicit def executionContext: ExecutionContext
 
@@ -78,3 +78,4 @@ trait EntityStoreAdapterLike[K, E <: BaseEntity[K]] extends EntityStore[K, E] {
       }
   }
 }
+

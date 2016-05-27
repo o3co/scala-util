@@ -2,8 +2,8 @@ package jp.o3co.datastore.entity
 package taggable
 package impl
 
-import jp.o3co.tag.store.TagStoreLike
-import jp.o3co.tag.store.impl.TagStoreProxyLike
+import jp.o3co.tag.owner.TagOwnerLike
+import jp.o3co.tag.owner.impl.TagOwnerProxyLike
 import jp.o3co.datastore.entity.EntityStoreLike
 import jp.o3co.datastore.entity.impl.EntityStoreProxyLike
 import jp.o3co.tag.TagNameSet
@@ -11,9 +11,9 @@ import jp.o3co.tag.TagNameSet
 /**
  *
  */
-trait TaggableEntityStoreProxy[K, E <: BaseEntity[K]] extends EntityStoreProxyLike[K, E] with TagStoreProxyLike[K] with TaggableEntityStoreProxyLike[K, E] {
+trait TaggableEntityStoreProxy[K, E <: BaseEntity[K]] extends EntityStoreProxyLike[K, E] with TagOwnerProxyLike[K] with TaggableEntityStoreProxyLike[K, E] {
 
-  val underlying: EntityStoreLike[K, E] with TagStoreLike[K] with TaggableEntityStoreLike[K, E]
+  val underlying: EntityStoreLike[K, E] with TagOwnerLike[K] with TaggableEntityStoreLike[K, E]
 }
 
 /**

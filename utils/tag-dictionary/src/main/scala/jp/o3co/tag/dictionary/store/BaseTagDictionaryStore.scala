@@ -1,5 +1,4 @@
-package jp.o3co.tag
-package dictionary
+package jp.o3co.tag.dictionary
 package store
 
 import jp.o3co.datastore.KeyValueStore

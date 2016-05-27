@@ -1,5 +1,4 @@
-package jp.o3co.tag
-package dictionary
+package jp.o3co.tag.dictionary
 package key
 
 import akka.actor.ActorSelection
@@ -9,8 +8,9 @@ import com.typesafe.config.Config
 import jp.o3co.config.Settings
 import jp.o3co.generator._
 import jp.o3co.generator.impl.RandomStringGenerator
-import scala.concurrent.ExecutionContext
+import jp.o3co.tag.TagName 
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
 
 import Protocol._
 

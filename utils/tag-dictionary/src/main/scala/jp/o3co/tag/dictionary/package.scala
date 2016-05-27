@@ -5,6 +5,12 @@ import jp.o3co.dictionary.multi._
 
 package object dictionary {
 
+  type TagName    = jp.o3co.tag.TagName
+
+  type TagLabel   = jp.o3co.tag.TagLabel
+
+  type TagNameSet = jp.o3co.tag.TagNameSet
+
   trait Protocol extends MultiDictionaryProtocol[TagSegment, TagName, TagLabel] {
 
     case class ContainsKey(key: TagName, segment: Option[TagSegment] = None)

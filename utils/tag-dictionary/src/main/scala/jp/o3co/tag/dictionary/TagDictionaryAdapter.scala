@@ -1,5 +1,4 @@
-package jp.o3co.tag
-package dictionary
+package jp.o3co.tag.dictionary
 
 import akka.actor.ActorRefFactory
 import akka.actor.ActorSelection

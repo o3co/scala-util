@@ -1,11 +1,12 @@
-package jp.o3co.tag
-package dictionary
+package jp.o3co.tag.dictionary
 package store
 
-import slick.driver.JdbcProfile
-import scala.concurrent.ExecutionContext
 import java.sql.Timestamp
 import java.util.Date
+import jp.o3co.tag.TagName 
+import jp.o3co.tag.TagLabel 
+import scala.concurrent.ExecutionContext
+import slick.driver.JdbcProfile
 
 trait SlickSQL extends BaseTagDictionaryStore {
 

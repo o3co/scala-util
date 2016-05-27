@@ -29,13 +29,11 @@ trait ActorSelectionSettings extends BaseActorSelectionSettings {
  * This settings provides the functionally to select or boot the child service actor for callee.
  */
 trait BootableActorSelectionSettings extends BaseActorSelectionSettings {
-  import akka.actor.Props
   import akka.actor.ActorSelection
   import akka.actor.ActorRefFactory
 
-  type PropsFactory = (Config) => Props
 
-  def propsFactory: PropsFactory
+  def propsFactory: BootableActorSelectionSettings.PropsFactory
  
   def actorName: String
 
@@ -50,7 +48,7 @@ trait BootableActorSelectionSettings extends BaseActorSelectionSettings {
    * Causion:
    *   The actor may or may not booted when method return the actorSelection.
    */
-  def selection(pathAt: String, actorName: String, propsFactory: PropsFactory)(implicit actorRefFactory: ActorRefFactory): ActorSelection = {
+  def selection(pathAt: String, actorName: String, propsFactory: BootableActorSelectionSettings.PropsFactory)(implicit actorRefFactory: ActorRefFactory): ActorSelection = {
     if(config.hasPath(pathAt)) {
       actorRefFactory.actorSelection(config.getString(pathAt))
     } else {
@@ -60,7 +58,7 @@ trait BootableActorSelectionSettings extends BaseActorSelectionSettings {
           case Success(ref) => //
           case Failure(e)   =>
             // Boot the actor with the name. So should boot when next actorSelection solve the path 
-            actorRefFactory.actorOf(propsFactory(config), actorName)
+            actorRefFactory.actorOf(propsFactory.props(config), actorName)
       }
       // Return ActorSelection even this is not configured or not.
       actor
@@ -68,3 +66,10 @@ trait BootableActorSelectionSettings extends BaseActorSelectionSettings {
   }
 }
 
+object BootableActorSelectionSettings {
+  import akka.actor.Props
+  /**
+   * Type PropsFactory which contains props method
+   */
+  type PropsFactory = { def props(config: Config): Props }
+}

@@ -7,3 +7,5 @@ trait BaseEntity[K] {
   def entityKey: EntityKey
 }
 
+abstract class AbstractBaseEntity[K](override val entityKey: K) extends BaseEntity[K]
+

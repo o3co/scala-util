@@ -1,11 +1,11 @@
 package jp.o3co.tag
-package store
+package owner
 
 import scala.concurrent.Future
 
-trait TagStore[O] extends TagStoreLike[O]
+trait TagOwner[O] extends TagOwnerLike[O]
 
-trait TagStoreLike[O] extends TagStoreComponents[O] {
+trait TagOwnerLike[O] extends TagOwnerComponents[O] {
 
   /**
    * Check single tag is existed with owner
@@ -20,28 +20,27 @@ trait TagStoreLike[O] extends TagStoreComponents[O] {
   /**
    * Add tags to owner
    *
-   * @return Updated TagNameSet
    */
-  def addTags(owner: Owner, tags: TagNameSet): Future[TagNameSet]
+  def addTags(owner: Owner, tags: TagNameSet): Future[Unit]
 
   /**
    * Remove tags with owner
    *
    * @return Updated TagNameSet
    */
-  def removeTags(owner: Owner, tags: TagNameSet): Future[TagNameSet]
+  def removeTags(owner: Owner, tags: TagNameSet): Future[Unit]
 
   /**
    * Remove all Removed TagNameSet
    *
    * @return Removed TagNameSet
    */
-  def removeAllTags(owner: Owner): Future[TagNameSet]
+  def removeAllTags(owner: Owner): Future[Unit]
 
   /**
    * Replace all tags with new tags
    * 
    * @return Removed TagNameSet 
    */
-  def replaceTags(owner: Owner, tags: TagNameSet): Future[TagNameSet]
+  def replaceTags(owner: Owner, tags: TagNameSet): Future[Unit]
 }

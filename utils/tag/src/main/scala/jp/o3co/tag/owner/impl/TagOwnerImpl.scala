@@ -1,14 +1,14 @@
 package jp.o3co.tag
-package store
+package owner
 package impl
 
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 
-trait BaseTagStoreImpl[O] extends mutable.Map[O, Set[TagName]] with TagStore[O]
+trait BaseTagOwnerImpl[O] extends mutable.Map[O, Set[TagName]] with TagOwner[O]
 
-trait BaseTagStoreImplLike[O, +This <: BaseTagStoreImplLike[O, This] with BaseTagStoreImpl[O]] extends mutable.MapLike[O, Set[TagName], This] with TagStore[O] {
+trait BaseTagOwnerImplLike[O, +This <: BaseTagOwnerImplLike[O, This] with BaseTagOwnerImpl[O]] extends mutable.MapLike[O, Set[TagName], This] with TagOwner[O] {
 
   implicit def executionContext: ExecutionContext
 
@@ -51,7 +51,7 @@ trait BaseTagStoreImplLike[O, +This <: BaseTagStoreImplLike[O, This] with BaseTa
   def addTags(owner: Owner, tags: TagNameSet) = {
     val newTags = ownerTags.getOrElse(owner, Set()) ++ tags
     ownerTags = ownerTags + (owner -> newTags)
-    Future(newTags)
+    Future.successful((): Unit)
   }
 
   /**
@@ -60,30 +60,30 @@ trait BaseTagStoreImplLike[O, +This <: BaseTagStoreImplLike[O, This] with BaseTa
   def removeTags(owner: Owner, tags: TagNameSet) = {
     val newTags = ownerTags.getOrElse(owner, Set()) -- tags
     ownerTags = ownerTags + (owner -> newTags)
-    Future(newTags)
+    Future.successful((): Unit)
   }
 
   /**
    * Remove all tags with owner
    */
   def removeAllTags(owner: Owner) = {
-    val prev = ownerTags.getOrElse(owner, Set())
+    //val prev = ownerTags.getOrElse(owner, Set())
     ownerTags = ownerTags - owner
-    Future(prev)
+    Future.successful((): Unit)
   }
 
   def replaceTags(owner: Owner, tags: TagNameSet) = {
-    val prev = ownerTags.getOrElse(owner, Set())
+    //val prev = ownerTags.getOrElse(owner, Set())
     ownerTags = ownerTags + (owner -> tags)
-    Future(prev)
+    Future.successful((): Unit)
   }
 }
 
-class TagStoreImpl[O](implicit val executionContext: ExecutionContext) extends BaseTagStoreImpl[O] with BaseTagStoreImplLike[O, TagStoreImpl[O]] {
+class TagOwnerImpl[O](implicit val executionContext: ExecutionContext) extends BaseTagOwnerImpl[O] with BaseTagOwnerImplLike[O, TagOwnerImpl[O]] {
 
-  override def empty = new TagStoreImpl[O]
+  override def empty = new TagOwnerImpl[O]
 }
 
-object TagStoreImpl {
-  def apply[O](implicit ec: ExecutionContext) = new TagStoreImpl[O]
+object TagOwnerImpl {
+  def apply[O](implicit ec: ExecutionContext) = new TagOwnerImpl[O]
 }
