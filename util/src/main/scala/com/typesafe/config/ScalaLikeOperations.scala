@@ -1,0 +1,77 @@
+package com.typesafe.config
+
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import scala.concurrent.duration._
+import scala.language.implicitConversions
+import scala.reflect.runtime.universe._
+
+/**
+ *
+ */
+trait ScalaLikeOperations extends AsConfig {
+
+  def get[T: WeakTypeTag](path: String): T = {
+    (weakTypeOf[T] match {
+      case t if t =:= typeOf[Duration]       => Duration(underlying.getDuration(path, MILLISECONDS), MILLISECONDS)
+      case t if t =:= typeOf[List[Boolean]]  => underlying.getBooleanList(path).asScala.toList
+      case t if t =:= typeOf[List[Number]]   => underlying.getNumberList(path).asScala.toList
+      case t if t =:= typeOf[List[Int]]      => underlying.getIntList(path).asScala.toList
+      case t if t =:= typeOf[List[Long]]     => underlying.getLongList(path).asScala.toList
+      case t if t =:= typeOf[List[Double]]   => underlying.getDoubleList(path).asScala.toList
+      case t if t =:= typeOf[List[String]]   => underlying.getStringList(path).asScala.toList
+      case t if t =:= typeOf[String]         => underlying.getString(path)
+      case t if t =:= typeOf[Number]         => underlying.getNumber(path)
+      case t if t =:= typeOf[Int]            => underlying.getInt(path)
+      case t if t =:= typeOf[Long]           => underlying.getLong(path)
+      case t if t =:= typeOf[Double]         => underlying.getDouble(path)
+      case t if t =:= typeOf[Boolean]        => underlying.getBoolean(path)
+      case t => 
+        // Try to cast the string value from 
+        throw new RuntimeException(s"""Type "${t}" is not supported to get.""")
+    })
+      .asInstanceOf[T]
+  }
+
+  def getOption[T: WeakTypeTag](path: String) = {
+    if(underlying.hasPath(path)) Some(get[T](path))
+    else None
+  }
+
+  /**
+   * {{{
+   *   config.getOrElse("path", default)
+   *   // or 
+   *   config.getOrElse("path", {
+   *     default
+   *   })
+   * }}}
+   */
+  def getOrElse[T: WeakTypeTag](path: String, default: => T): T = 
+    getOption[T](path).getOrElse(default)
+
+  def getConfigOption(path: String): Option[Config] = 
+    if(underlying.hasPath(path)) Some(underlying.getConfig(path))
+    else None
+
+  def getConfigOrEmpty(path: String): Config = 
+    if(underlying.hasPath(path)) underlying.getConfig(path)
+    else ConfigFactory.empty() 
+
+  /**
+   * Get value on path as Config OBJECT
+   *
+   * {{{
+   *   val config = ConfigFactory.parseString("""hoge = hoge""")
+   *
+   *   config.getAsConfig("hoge", "some") // {some = hoge}
+   * }}}
+   */
+  def getAsConfig(path: String, innerPath: String): Config = {
+    val value = underlying.getValue(path)
+    value.valueType match {
+      case ConfigValueType.OBJECT => underlying.getConfig(path)
+      case _ =>  value.atPath(innerPath)
+    }
+  }
+}
