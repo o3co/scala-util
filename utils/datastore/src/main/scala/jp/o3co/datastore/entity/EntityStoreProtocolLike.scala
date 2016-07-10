@@ -30,10 +30,10 @@ trait EntityStoreProtocolLike[K, E <: BaseEntity[K]] extends EntityStoreComponen
   case class GetEntitiesFailure(cause: Throwable)
 
   case class PutEntity(entity: Entity)
-  case class PutEntitySuccess(prev: Option[Entity])
+  case class PutEntitySuccess()
   case class PutEntityFailure(cause: Throwable)
 
   case class DeleteEntity(key: EntityKey)
-  case class DeleteEntitySuccess(removed: Option[Entity])
+  case class DeleteEntitySuccess()
   case class DeleteEntityFailure(cause: Throwable)
 }

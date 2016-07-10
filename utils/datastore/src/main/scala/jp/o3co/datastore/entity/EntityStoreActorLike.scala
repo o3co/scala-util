@@ -55,14 +55,14 @@ trait EntityStoreActorLike[K, E <: BaseEntity[K]] extends EntityStoreComponents[
         .pipeTo(sender())
     case PutEntity(entity) => 
       putEntityAsync(entity)
-        .map(prev => PutEntitySuccess(prev))
+        .map(_ => PutEntitySuccess())
         .recover {
           case e: Throwable => PutEntityFailure(e)
         }
         .pipeTo(sender())
     case DeleteEntity(key) => 
       deleteEntityAsync(key)
-        .map(deleted=> DeleteEntitySuccess(deleted))
+        .map(_ => DeleteEntitySuccess())
         .recover {
           case e: Throwable => DeleteEntityFailure(e)
         }

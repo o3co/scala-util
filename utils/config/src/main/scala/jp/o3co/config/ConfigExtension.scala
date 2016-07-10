@@ -18,26 +18,21 @@ trait ConfigExtensions extends BaseConfigExtensions {
   def getLocale(path: String): Locale = Locale(config.getString("locale"))
 
   /**
-   * Get config value as Config.
-   * If config on path is a Config, then return 
-   * Otherwise put ConfigValue into a new Config with innerPath.
+   * Get ConfigObject for the path.
+   * If config value on the path is not a ConfigObject, then replace the value with innerPath
    *
    * {{{
-   *   // For config
-   *   // {
-   *   //   something = "path"
-   *   // }
-   *   // Or
-   *   // {
-   *   //   something {
-   *   //      endpoint = "path"
-   *   //   }
-   *   // }
-   *   config.getAsConfig("somthing", "endpoint")
-   *   // return 
-   *   // {
-   *   //   endpoint = "path" 
-   *   // }
+   *  config.getAsConfig("foo", "bar") // {foo: { bar: someValue} } 
+   *  // For Both
+   *  //  {
+   *  //    foo: someVlaue
+   *  //  }
+   *  // or
+   *  //  {
+   *  //    foo: {
+   *  //      bar: someValue
+   *  //    }
+   *  //  }
    * }}}
    *
    * @param path Path to get

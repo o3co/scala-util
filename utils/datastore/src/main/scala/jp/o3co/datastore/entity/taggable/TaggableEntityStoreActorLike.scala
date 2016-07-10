@@ -6,24 +6,19 @@ import akka.actor.Actor
 import akka.pattern.pipe
 import scala.concurrent.ExecutionContext
 
-import jp.o3co.tag.owner.TagOwnerActorLike
-import jp.o3co.tag.owner.TagOwnerLike
-import jp.o3co.tag.owner.TagOwnerProtocolLike
 
-
-trait TaggableEntityStoreActor[K, E <: BaseEntity[K]] extends EntityStoreActorLike[K, E]
-  with TagOwnerActorLike[K]
+trait TaggableEntityStoreActor[K, E <: BaseEntity[K]] extends Actor 
+  with EntityStoreActorLike[K, E]
   with TaggableEntityStoreActorLike[K, E]
 {
-  this: Actor with EntityStoreLike[K, E] with TagOwnerLike[K] with TaggableEntityStoreLike[K, E] =>
+  this: EntityStoreLike[K, E] with TaggableEntityStoreLike[K, E] =>
 
-  val protocol: EntityStoreProtocolLike[K, E] with TagOwnerProtocolLike[K] with TaggableEntityStoreProtocolLike[K, E]
+  val protocol: EntityStoreProtocolLike[K, E] with TaggableEntityStoreProtocolLike[K, E]
 
   //override def receiveExtensions: Receive = Actor.emptyBehavior
 
   def receive: Receive = receiveTaggableEntityStoreCommand
         .orElse(receiveEntityStoreCommand)
-        .orElse(receiveTagOwnerCommand)
         .orElse(receiveExtensions)
 }
 
@@ -33,12 +28,16 @@ trait TaggableEntityStoreActor[K, E <: BaseEntity[K]] extends EntityStoreActorLi
 trait TaggableEntityStoreActorLike[K, E <: BaseEntity[K]] {
   this: Actor with TaggableEntityStoreLike[K, E] => 
 
+  // Require protocol to implement TaggableEntityStoreProtocolLike
   val protocol: TaggableEntityStoreProtocolLike[K, E]
 
   import protocol._
 
   implicit def executionContext: ExecutionContext 
 
+  /**
+   *
+   */
   def receiveTaggableEntityStoreCommand: Receive = {
     case GetEntityWithTags(key) => 
       getEntityWithTagsAsync(key)
@@ -52,14 +51,14 @@ trait TaggableEntityStoreActorLike[K, E <: BaseEntity[K]] {
         .pipeTo(sender)
     case PutEntityWithTags(entity, tags) => 
       putEntityWithTagsAsync(entity, tags)
-        .map(prev => PutEntityWithTagsSuccess(prev))
+        .map(_ => PutEntityWithTagsSuccess())
         .recover {
           case e: Throwable => PutEntityWithTagsFailure(e)
         }
         .pipeTo(sender)
     case DeleteEntityWithTags(key) => 
       deleteEntityWithTagsAsync(key)
-        .map(deleted  => DeleteEntityWithTagsSuccess(deleted))
+        .map(_ => DeleteEntityWithTagsSuccess())
         .recover {
           case e: Throwable => DeleteEntityWithTagsFailure(e)
         }

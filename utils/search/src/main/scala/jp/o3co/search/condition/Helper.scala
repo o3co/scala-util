@@ -5,7 +5,7 @@ import java.lang.Comparable
 /**
  * Helper to create Conditions
  */
-trait Helper {
+trait ConditionHelper {
 
   def eq[T](value: T): Equals[T]    = Equals[T](value)
   def ne[T](value: T)               = NotEquals[T](value)
@@ -53,4 +53,4 @@ trait Helper {
   def containsEither[T](values: T *) = Contains.either[T](values: _*)
 }
 
-object Helper extends Helper
+object ConditionHelper extends ConditionHelper

@@ -1,6 +1,8 @@
 package jp.o3co.config
 package jdbc
 
+import com.typesafe.config.Config
+
 trait DBType
 object DBType {
   def apply(name: String) = {
@@ -69,5 +71,11 @@ trait JDBCSettings extends Settings {
       s"jdbc:postgresql://$host:$port/$dbname"
     case _ => 
       throw new Exception("Unknown DBType for JDBCUrl")
+  }
+}
+
+object JDBCSettings {
+  def apply(c: Config) = new JDBCSettings {
+    override val config = c
   }
 }

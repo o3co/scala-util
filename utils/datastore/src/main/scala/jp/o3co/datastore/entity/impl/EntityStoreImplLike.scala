@@ -57,12 +57,12 @@ trait EntityStoreImplLike[K, E <: BaseEntity[K], +This <: EntityStoreImplLike[K,
 
   def putEntityAsync(entity: Entity) = {
     val prev = put(entity.entityKey, entity)
-    Future.successful(prev)
+    Future.successful((): Unit)
   }
 
   def deleteEntityAsync(key: EntityKey) = {
     val deleted = remove(key)
-    Future.successful(deleted)
+    Future.successful((): Unit)
   }
 }
 

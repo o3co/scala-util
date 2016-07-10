@@ -25,10 +25,6 @@ trait EntityStoreLike[K, E <: BaseEntity[K]] extends EntityStoreComponents[K, E]
    */
   def getEntityAsync(key: EntityKey): Future[Option[Entity]]
 
-  //def listAsync(size: Long, offset: Long): Future[Traversable[Entity]]
-
-  //def listWithCountAsync(size: Long, offset: Long): Future[(Traversable[Entity], Long)]
-
   /**
    * Get entities by keys
    */
@@ -42,11 +38,11 @@ trait EntityStoreLike[K, E <: BaseEntity[K]] extends EntityStoreComponents[K, E]
   /**
    * Put entity
    */
-  def putEntityAsync(entity: Entity): Future[Option[Entity]]
+  def putEntityAsync(entity: Entity): Future[Unit]
 
   /**
    * Delete entity by key
    */
-  def deleteEntityAsync(key: EntityKey): Future[Option[Entity]]
+  def deleteEntityAsync(key: EntityKey): Future[Unit]
 }
 

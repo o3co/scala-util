@@ -24,6 +24,7 @@ object Utils extends Build
       datastore,
       dictionary,
       generator,
+      id,
       matcher,
       misc,
       routeDelegator,
@@ -41,6 +42,7 @@ object Utils extends Build
       datastore,
       dictionary,
       generator,
+      id,
       matcher,
       misc,
       routeDelegator,
@@ -184,6 +186,22 @@ object Utils extends Build
         )
     )
     .dependsOn(counter)
+
+  lazy val id = Project("util-id", file("utils/id"))
+    .settings(basicSettings: _*)
+    .settings(
+      libraryDependencies ++= 
+        provided (
+          akkaActor,
+          slick,
+          rediscala
+        ) ++
+        test(
+          specs2,
+          commonsLang
+        )
+    )
+    .dependsOn(config % "provided,test", generator % "provided,test")
 
   lazy val matcher = Project("util-matcher", file("utils/matcher"))
     .settings(basicSettings: _*)

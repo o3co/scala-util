@@ -50,4 +50,12 @@ trait ScalaLikeOperations {
    */
   def getOrElse[T: WeakTypeTag](path: String, default: => T): T = 
     getOption[T](path).getOrElse(default)
+
+  def getConfigOption(path: String): Option[Config] = 
+    if(config.hasPath(path)) Some(config.getConfig(path))
+    else None
+
+  def getConfigOrEmpty(path: String): Config = 
+    if(config.hasPath(path)) config.getConfig(path)
+    else ConfigFactory.empty() 
 }

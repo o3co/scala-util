@@ -20,6 +20,9 @@ object Matchers {
       case true  => Matched(value :: HNil) 
       case false => Unmatched(s"$value is not equals $comparator")
     }
+
+    def as[B](implicit f: T => B): Matcher[B] =
+      Equals(f(comparator))
   }
   
   /**
@@ -33,6 +36,9 @@ object Matchers {
       case true  => Unmatched(s"$value is equals $comparator")
       case false => Matched(value :: HNil) 
     }
+
+    def as[B](implicit f: T => B): Matcher[B] = 
+      NotEquals(f(comparator))
   }
   
   /**
@@ -46,6 +52,9 @@ object Matchers {
       case n if n > 0 => Matched(value :: HNil)
       case _          => Unmatched(s"$value is not less than $comparator")
     }
+
+    def as[B <% Comparable[B]](implicit f: T => B): Matcher[B] = 
+      LessThan(f(comparator))
   }
   
   /**
@@ -59,6 +68,9 @@ object Matchers {
       case n if n >= 0 => Matched(value :: HNil)
       case _          => Unmatched(s"$value is not less than or eqauls $comparator")
     }
+
+    def as[B <% Comparable[B]](implicit f: T => B): Matcher[B] = 
+      LessThanOrEquals(f(comparator))
   }
   
   /**
@@ -72,6 +84,9 @@ object Matchers {
       case n if n < 0 => Matched(value :: HNil)
       case _          => Unmatched(s"$value is not greater than $comparator")
     }
+
+    def as[B <% Comparable[B]](implicit f: T => B): Matcher[B] = 
+      GreaterThan(f(comparator))
   }
   
   /**
@@ -85,6 +100,9 @@ object Matchers {
       case n if n <= 0 => Matched(value :: HNil)
       case _          => Unmatched(s"$value is not greater than or eqauls $comparator")
     }
+
+    def as[B <% Comparable[B]](implicit f: T => B): Matcher[B] = 
+      GreaterThanOrEquals(f(comparator))
   }
 
   /**
@@ -103,6 +121,9 @@ object Matchers {
       case true  => Matched(value :: HNil)
       case false => Unmatched(s"$value is not between $min and $max.")
     }
+
+    def as[B <% Comparable[B]](implicit f: T => B): Matcher[B] = 
+      Between(f(left), f(right), includeMin, includeMax)
   }
 
   case class InSet[T](comparators: Set[T]) extends Matcher[T]{
@@ -110,6 +131,9 @@ object Matchers {
       if(comparators.contains(value)) Matched(value :: HNil)
       else Unmatched(s"$value is not in $comparators")
     }
+
+    def as[B](implicit f: T => B): Matcher[B] = 
+      InSet(comparators.map(f(_)))
   }
     
   trait Compound[T] extends Matcher[T] {
@@ -137,6 +161,9 @@ object Matchers {
         case UnmatchedTermination(message) => Unmatched(message)
       }
     }
+
+    //def as[B](implicit f: T => B): Matcher[B] = 
+    //  And[B](matchers.map(m => m.as[B]):_*)
   }
   
   case class Or[T](matchers: Matcher[T] *) extends Matcher[T] {
@@ -150,6 +177,9 @@ object Matchers {
         }
         .getOrElse(Unmatched(s"$value is not matched any."))
     }
+
+    //def as[B](implicit f: T => B): Matcher[B] = 
+    //  Or[B](matchers.map(m => m.as[B]):_*)
   }
 
   case class PrefixMatcher(prefix: String) extends Matcher[String] {
@@ -159,6 +189,9 @@ object Matchers {
       case pattern(remains) => Matched(prefix :: HNil)
       case _ => Unmatched(s"$value is not start with $prefix")
     }
+
+    def as[B](implicit f: String => B): Matcher[B] = 
+      throw new Exception("PrefixMatcher only support String")
   }
 
   /**
@@ -169,6 +202,9 @@ object Matchers {
       case true  => Matched(value :: HNil)
       case false => Unmatched(s"$value is not contained in set $values")
     }
+
+    def as[B](implicit f: T => B) = 
+      SetContains(f(value))
   }
 
   case class Contains[T](value: T) extends SeqMatcher[T] {
@@ -179,6 +215,9 @@ object Matchers {
       case true  => Matched(value :: HNil)
       case false => Unmatched(s"$value is not contained on seq $values") 
     }
+
+    def as[B](implicit f: T => B) = 
+      Contains(f(value))
   }
 
   case class MapContainsKey[K](key: K) extends MapMatcher[K, Any] {
@@ -189,5 +228,8 @@ object Matchers {
       case true  => Matched((key, values(key)) :: HNil)
       case false => Unmatched(s"$key is not contained on Map $values") 
     }
+
+    def as[B](implicit f: K => B) = 
+      MapContainsKey(f(key))
   }
 }

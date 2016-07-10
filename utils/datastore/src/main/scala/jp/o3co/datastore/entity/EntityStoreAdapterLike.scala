@@ -65,7 +65,7 @@ trait EntityStoreAdapterLike[K, E <: BaseEntity[K]] extends EntityStore[K, E] {
   def putEntityAsync(entity: Entity) = {
     (endpoint ? PutEntity(entity))
       .map {
-        case PutEntitySuccess(prev) => prev 
+        case PutEntitySuccess() => (): Unit 
         case PutEntityFailure(cause) => throw cause
       }
   }
@@ -73,8 +73,10 @@ trait EntityStoreAdapterLike[K, E <: BaseEntity[K]] extends EntityStore[K, E] {
   def deleteEntityAsync(key: EntityKey) = {
     (endpoint ? DeleteEntity(key))
       .map {
-        case DeleteEntitySuccess(deleted) => deleted 
+        case DeleteEntitySuccess() => (): Unit 
         case DeleteEntityFailure(cause)    => throw cause
       }
   }
 }
+
+trait EntityStoreAdapter[K, E <: BaseEntity[K]] extends EntityStoreAdapterLike[K, E]

@@ -31,5 +31,6 @@ object Dependencies {
   val slick           = "com.typesafe.slick"  %% "slick"           % "3.1.0"
   val c3p0            = "com.mchange"         %  "c3p0"            % "0.9.5"
   val shapeless       = "com.chuusai"         %% "shapeless"       % "1.2.4"
+  val rediscala       = "com.github.etaty"    %% "rediscala"       % "1.6.0"
 }
 

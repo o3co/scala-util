@@ -10,7 +10,7 @@ import akka.pattern.pipe
 /**
  *
  */
-trait ActorRefEntityStoreLike[K, E <: BaseEntity[K]] extends EntityStore[K, E] {
+trait ActorRefEntityStoreProxy[K, E <: BaseEntity[K]] extends EntityStore[K, E] {
 
   val protocol: EntityStoreProtocolLike[EntityKey, Entity]
 
@@ -65,7 +65,7 @@ trait ActorRefEntityStoreLike[K, E <: BaseEntity[K]] extends EntityStore[K, E] {
   def putEntityAsync(entity: Entity) = {
     (endpoint ? PutEntity(entity))
       .map {
-        case PutEntitySuccess(prev) => prev 
+        case PutEntitySuccess()      => (): Unit 
         case PutEntityFailure(cause) => throw cause
       }
   }
@@ -73,8 +73,8 @@ trait ActorRefEntityStoreLike[K, E <: BaseEntity[K]] extends EntityStore[K, E] {
   def deleteEntityAsync(key: EntityKey) = {
     (endpoint ? DeleteEntity(key))
       .map {
-        case DeleteEntitySuccess(deleted) => deleted 
-        case DeleteEntityFailure(cause)    => throw cause
+        case DeleteEntitySuccess()      => (): Unit
+        case DeleteEntityFailure(cause) => throw cause
       }
   }
 }

@@ -2,8 +2,6 @@ package jp.o3co.datastore.entity
 package taggable
 package impl
 
-import jp.o3co.tag.owner.TagOwnerLike
-import jp.o3co.tag.owner.impl.TagOwnerProxyLike
 import jp.o3co.datastore.entity.EntityStoreLike
 import jp.o3co.datastore.entity.impl.EntityStoreProxyLike
 import jp.o3co.tag.TagNameSet
@@ -11,27 +9,27 @@ import jp.o3co.tag.TagNameSet
 /**
  *
  */
-trait TaggableEntityStoreProxy[K, E <: BaseEntity[K]] extends EntityStoreProxyLike[K, E] with TagOwnerProxyLike[K] with TaggableEntityStoreProxyLike[K, E] {
+trait TaggableEntityStoreProxy[K, E <: BaseEntity[K]] extends EntityStoreProxyLike[K, E] with TaggableEntityStoreProxyLike[K, E] {
 
-  val underlying: EntityStoreLike[K, E] with TagOwnerLike[K] with TaggableEntityStoreLike[K, E]
+  def underlying: EntityStoreLike[K, E] with TaggableEntityStoreLike[K, E]
 }
 
 /**
  *
  */
-trait TaggableEntityStoreProxyLike[K, E <: BaseEntity[K]] extends TaggableEntityStoreLike[K, E] {
+trait TaggableEntityStoreProxyLike[Key, Entity <: BaseEntity[Key]] extends TaggableEntityStoreLike[Key, Entity] {
 
   /**
    *
    */
-  def underlying: TaggableEntityStoreLike[K, E]
+  def underlying: TaggableEntityStoreLike[Key, Entity]
 
   implicit def executionContext: scala.concurrent.ExecutionContext
 
   /**
    *
    */
-  def getEntityWithTagsAsync(key: EntityKey) = underlying.getEntityWithTagsAsync(key)
+  def getEntityWithTagsAsync(key: Key) = underlying.getEntityWithTagsAsync(key)
 
   /**
    *
@@ -41,6 +39,6 @@ trait TaggableEntityStoreProxyLike[K, E <: BaseEntity[K]] extends TaggableEntity
   /**
    *
    */
-  def deleteEntityWithTagsAsync(key: EntityKey) = underlying.deleteEntityWithTagsAsync(key)
+  def deleteEntityWithTagsAsync(key: Key) = underlying.deleteEntityWithTagsAsync(key)
 }
 

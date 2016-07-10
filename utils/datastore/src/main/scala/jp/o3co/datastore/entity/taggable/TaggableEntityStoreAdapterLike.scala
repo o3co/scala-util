@@ -10,21 +10,21 @@ import akka.pattern.ask
 import akka.pattern.pipe
 
 import jp.o3co.tag.{TagName, TagNameSet}
-import jp.o3co.tag.owner.{TagOwnerAdapterLike, TagOwnerProtocolLike}
 
-
-trait TaggableEntityStoreAdapter[K, E <: BaseEntity[K]] extends EntityStoreAdapterLike[K, E] with TagOwnerAdapterLike[K] with TaggableEntityStoreAdapterLike[K, E] {
+/**
+ *
+ */
+trait TaggableEntityStoreAdapter[K, E <: BaseEntity[K]] extends EntityStoreAdapterLike[K, E] with TaggableEntityStoreAdapterLike[K, E] {
   
-  val protocol: EntityStoreProtocolLike[K, E] with TagOwnerProtocolLike[K] with TaggableEntityStoreProtocolLike[K, E]
+  val protocol: EntityStoreProtocolLike[K, E] with TaggableEntityStoreProtocolLike[K, E]
 }
 
 /**
  *
  */
-trait TaggableEntityStoreAdapterLike[K, E <: BaseEntity[K]] extends TaggableEntityStoreLike[K, E] {
-  //with EntityStoreAdapterLike[K, E] with TagOwnerAdapterLike[K] {
+trait TaggableEntityStoreAdapterLike[Key, Entity <: BaseEntity[Key]] extends TaggableEntityStoreLike[Key, Entity] {
 
-  val protocol: TaggableEntityStoreProtocolLike[EntityKey, E]
+  val protocol: TaggableEntityStoreProtocolLike[Key, Entity]
 
   import protocol._
 
@@ -34,7 +34,7 @@ trait TaggableEntityStoreAdapterLike[K, E <: BaseEntity[K]] extends TaggableEnti
 
   implicit def timeout: Timeout
   
-  def getEntityWithTagsAsync(key: EntityKey) = {
+  def getEntityWithTagsAsync(key: Key) = {
     (endpoint ? GetEntityWithTags(key))
       .map {
         case GetEntityWithTagsSuccess(Some(created), tags) => Option((created, tags)): Option[(Entity, TagNameSet)]
@@ -43,19 +43,19 @@ trait TaggableEntityStoreAdapterLike[K, E <: BaseEntity[K]] extends TaggableEnti
       }
   }
 
-  def putEntityWithTagsAsync(entity: E, tags: TagNameSet) = {
+  def putEntityWithTagsAsync(entity: Entity, tags: TagNameSet) = {
 
     (endpoint ? PutEntityWithTags(entity, tags))
       .map {
-        case PutEntityWithTagsSuccess(prev)      => prev
+        case PutEntityWithTagsSuccess()      => (): Unit
         case PutEntityWithTagsFailure(cause)      => throw cause
       }
   }
 
-  def deleteEntityWithTagsAsync(key: EntityKey) = {
+  def deleteEntityWithTagsAsync(key: Key) = {
     (endpoint ? DeleteEntityWithTags(key))
       .map {
-        case DeleteEntityWithTagsSuccess(deleted)  => deleted 
+        case DeleteEntityWithTagsSuccess()  => (): Unit 
         case DeleteEntityWithTagsFailure(cause)     => throw cause
       }
   }

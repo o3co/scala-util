@@ -50,6 +50,8 @@ trait Matcher[T] extends (T => Matcher.Matching[T]) {
     case _: Matched   => Matched(value)
     case _: Unmatched => Unmatched()
   })
+
+  //def as[B](implicit f: T => B): Matcher[B]
 }
 
 trait ImplicitConversions {

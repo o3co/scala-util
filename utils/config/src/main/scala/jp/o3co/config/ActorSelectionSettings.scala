@@ -35,7 +35,7 @@ trait BootableActorSelectionSettings extends BaseActorSelectionSettings {
 
   def propsFactory: BootableActorSelectionSettings.PropsFactory
  
-  def actorName: String
+  def actorName: Option[String]
 
   implicit def executionContext: ExecutionContext
 
@@ -48,20 +48,23 @@ trait BootableActorSelectionSettings extends BaseActorSelectionSettings {
    * Causion:
    *   The actor may or may not booted when method return the actorSelection.
    */
-  def selection(pathAt: String, actorName: String, propsFactory: BootableActorSelectionSettings.PropsFactory)(implicit actorRefFactory: ActorRefFactory): ActorSelection = {
+  def selection(pathAt: String, actorName: Option[String], propsFactory: BootableActorSelectionSettings.PropsFactory)(implicit actorRefFactory: ActorRefFactory): ActorSelection = {
     if(config.hasPath(pathAt)) {
       actorRefFactory.actorSelection(config.getString(pathAt))
-    } else {
+    } else if(actorName.nonEmpty) {
       // Create ActorSelection of the actorName
-      val actor = actorRefFactory.actorSelection(actorName)
+      val actor = actorRefFactory.actorSelection(actorName.get)
       actor.resolveOne(timeout).onComplete {
           case Success(ref) => //
           case Failure(e)   =>
             // Boot the actor with the name. So should boot when next actorSelection solve the path 
-            actorRefFactory.actorOf(propsFactory.props(config), actorName)
+            actorRefFactory.actorOf(propsFactory.props(config), actorName.get)
       }
       // Return ActorSelection even this is not configured or not.
       actor
+    } else {
+      //actorRefFactory.actorOf(propsFactory.props(config))
+      throw new Exception("""Either "path" on config or "actorName" on parameter need to be specified for selection.""") 
     }
   }
 }

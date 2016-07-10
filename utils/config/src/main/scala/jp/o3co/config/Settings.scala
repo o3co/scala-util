@@ -17,3 +17,9 @@ trait Settings extends Implicits with ConfigExtensions {
 
   def getConfig(path: String): Config = config.getConfig(path)
 }
+
+object Settings {
+  def apply(c: Config) = new Settings {
+    val config = c
+  }
+}
