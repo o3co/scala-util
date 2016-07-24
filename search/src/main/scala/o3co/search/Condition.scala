@@ -27,12 +27,51 @@ trait Condition[+T] {
   def as[B](implicit f: T => B) = Condition.as[T, B](this)
 }
 
-object Condition extends ConditionHelper {
+/**
+ * {{{
+ *   Condition.eq(value) // Equals(value)
+ *   Condition.eq(1)     // Equals[Int](1)
+ * }}}
+ */
+object Condition extends ConditionFactory {
+
+  /**
+   *
+   */
   def parse[T](notation: String)(implicit parser: ConditionParser): Condition[T] = parser.parse(notation)
 
+  /**
+   *
+   */
   def as[A, B](condition: Condition[A])(implicit f: A => B): Condition[B] = condition match {
     case x: ScalarConditionLike[A] => x.asCondition(f)
   }
+
+  trait ImplicitConversions extends Any { 
+    import scala.language.implicitConversions
+
+    // Any direct value to Equals condition
+    implicit def valueToEquals[T](value: T) = Equals[T](value)
+
+    // Any Numeric to Int Condition
+    implicit def longToIntCondition(condition: Condition[Long]): Condition[Int] = condition.as(_.toInt)
+    implicit def floatToIntCondition(condition: Condition[Float]): Condition[Int] = condition.as(_.toInt)
+    implicit def doubleToIntCondition(condition: Condition[Double]): Condition[Int] = condition.as(_.toInt)
+    // Any Numeric to Long Condition
+    implicit def intToLongCondition(condition: Condition[Int]): Condition[Long] = condition.as(_.toLong)
+    implicit def floatToLongCondition(condition: Condition[Float]): Condition[Long] = condition.as(_.toLong)
+    implicit def doubleToLongCondition(condition: Condition[Double]): Condition[Long] = condition.as(_.toLong)
+    // Any Numeric to Float Condition
+    implicit def intToFloatCondition(condition: Condition[Int]): Condition[Float] = condition.as(_.toFloat)
+    implicit def longToFloatCondition(condition: Condition[Long]): Condition[Float] = condition.as(_.toFloat)
+    implicit def doubleToFloatCondition(condition: Condition[Double]): Condition[Float] = condition.as(_.toFloat)
+    // Any Numeric to Double Condition
+    implicit def intToDoubleCondition(condition: Condition[Int]): Condition[Double] = condition.as(_.toDouble)
+    implicit def longToDoubleCondition(condition: Condition[Long]): Condition[Double] = condition.as(_.toDouble)
+    implicit def floatToDoubleCondition(condition: Condition[Float]): Condition[Double] = condition.as(_.toDouble)
+  }
+
+  object ImplicitConversions extends ImplicitConversions
 }
 
 trait ScalarConditionLike[+T] {
@@ -46,11 +85,12 @@ trait ScalarConditionLike[+T] {
   def asCondition[B](implicit f: T => B): Condition[B]
 }
 
+
+
 /**
- * Helper to create Conditions
+ * Condition Factory to create Conditions
  */
-trait ConditionHelper {
-  import scala.language.implicitConversions
+trait ConditionFactory {
 
   def eq[T](value: T): Equals[T]    = Equals[T](value)
   def ne[T](value: T)               = NotEquals[T](value)
@@ -96,9 +136,5 @@ trait ConditionHelper {
    * @param values Values for traversal contains
    */
   def containsEither[T](values: T *) = Contains.either[T](values: _*)
-
-  implicit def valueToEquals[T](value: T) = Equals[T](value)
 }
-
-object ConditionHelper extends ConditionHelper
 

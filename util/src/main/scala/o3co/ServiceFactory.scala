@@ -23,48 +23,6 @@ import scala.util.{Success, Failure}
  *   Service.boot(config, "service")  // will boot new actor "/user/service"
  * }}}
  */
-trait ServiceBooter {
-
-  /**
-   *
-   */
-  def defaultServiceClassName : String = ""
-
-  def defaultServiceClass = Class.forName(defaultServiceClassName)
-
-  def initialTimeout: FiniteDuration = 3.seconds 
-
-  def props(config: Config): Props = {
-    val serviceClass = if(config.hasPath("service-class")) {
-      Class.forName(config.getString("service-class"))
-    } else {
-      defaultServiceClass
-    }
-
-    Props(serviceClass, config)
-  }
-    
-  /**
-   * Boot servie actor
-   */
-  def boot(config: Config, name: String = null)(implicit actorRefFactory: ActorRefFactory): ActorRef = 
-    Option(name) match {
-      case Some(n) => actorRefFactory.actorOf(props(config), n)
-      case None    => actorRefFactory.actorOf(props(config))
-    }
-
-  def bootOnce(config: Config, actorName: String)(implicit actorRefFactory: ActorRefFactory, executionContext: ExecutionContext): Future[ActorRef] = {
-    // Try select for the actorName first
-    actorRefFactory.actorSelection(actorName)
-      .resolveOne(initialTimeout)
-      .recover {
-        case e: Throwable => 
-          // If not resolvable, then boot new actor
-          boot(config, actorName)
-      }
-  }
-}
-
 /**
  * ServiceFactory is a factory to create an adapter which facade of newly created or existed actor.
  * This means that if the caller can be a parent of this target service, then use this factory.
@@ -85,8 +43,10 @@ trait ServiceBooter {
  *
  * }}}
  */
-trait ServiceFactory[T] extends ServiceBooter {
+trait ServiceFactory[T] extends actor.ActorBoot {
   import scala.language.reflectiveCalls
+
+  override val ClassPath = "service-class"
 
   def adapterFactory: ServiceAdapterFactory[T] 
 

@@ -1,10 +1,9 @@
 package o3co.store.slick
 
+import o3co.search._
 import o3co.store.entity._
-import scala.concurrent.Future
-import o3co.search.OrderByField
-import o3co.search.OrderByFields
 import o3co.store.entity.Entity
+import scala.concurrent.Future
 import slick.lifted.ColumnOrdered
 import slick.SearchExtension
 
@@ -15,7 +14,7 @@ trait SlickEntitySearch[I, E <: Entity[I], C] extends SearchExtension {
 
   import scala.language.implicitConversions
 
-  def findAsync(condition: Option[C] = None, order: Option[OrderByFields] = None, size: Int, offset: Long) = {
+  def findAsync(condition: Option[C] = None, order: Option[OrderByFields] = None, size: Size, offset: Offset) = {
     val query = (condition, order) match {
       case (Some(c), Some(o))  => entities.filter(c).sorted(o)
       case (Some(c), None)     => entities.filter(c)
@@ -25,7 +24,10 @@ trait SlickEntitySearch[I, E <: Entity[I], C] extends SearchExtension {
     
     database.run((for {
       hits <- query.length.result
-      ids  <- query.map(_.id).drop(offset).take(size).result
+      ids  <- size match {
+        case All => query.map(_.id).drop(offset).result
+        case Limit(s) => query.map(_.id).drop(offset).take(s).result
+      }
     } yield(ids, hits.toLong)).transactionally)
   }
   

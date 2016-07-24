@@ -2,7 +2,7 @@ package o3co.conversion
 
 /**
  */
-trait Conversion[A, B] {
+trait Conversion[A, B] extends Function[A, B] {
   def apply(from: A): B
 }
 
@@ -26,6 +26,16 @@ object Conversion {
   }
 
   def apply[A, B](f: Forward[A, B], g: Backward[A, B]): ReversibleConversion[A, B] = 
+    ReversibleConversion[A, B](f, g)
+}
+
+object ReversibleConversion {
+  import scala.language.existentials
+
+  /**
+   *
+   */
+  def apply[A, B](f: Conversion.Forward[A, B], g: Conversion.Backward[A, B]) = 
     new ReversibleConversion[A, B] {
       forwardConversion => 
 

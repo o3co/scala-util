@@ -13,6 +13,23 @@ sealed trait OrderBy {
   def asc: OrderBy
   def desc: OrderBy
 }
+
+object OrderBy {
+  /**
+   *
+   */
+  trait ImplicitConversions extends Any {
+    import scala.language.implicitConversions
+  
+    /**
+     *
+     */
+    implicit def stringToOrderBy(notation: String): OrderByField = OrderByField(notation)
+  }
+
+  object ImplicitConversions extends ImplicitConversions 
+}
+
 case class OrderByField(fieldname: String, direction: OrdinalDirection = OrdinalDirections.ASC) extends OrderBy {
   def asc: OrderByField = copy(direction = OrdinalDirections.ASC)
   def desc: OrderByField = copy(direction = OrdinalDirections.DESC)
@@ -46,19 +63,6 @@ object OrderByField {
 
   def desc(field: String) = new OrderByField(field, OrdinalDirections.DESC)
 }
-
-/**
- *
- */
-trait ImplicitConversions {
-  import scala.language.implicitConversions
-
-  /**
-   *
-   */
-  implicit def stringToOrderBy(notation: String): OrderByField = OrderByField(notation)
-}
-object ImplicitConversions extends ImplicitConversions
 
 trait OrderByFactory {
   /**
