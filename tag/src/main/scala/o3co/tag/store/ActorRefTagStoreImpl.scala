@@ -1,8 +1,7 @@
 package o3co.tag
 package store
-package impl 
 
-import akka.actor.ActorSelection 
+import akka.actor.ActorRef 
 import akka.util.Timeout
 import akka.pattern.ask
 import scala.concurrent.ExecutionContext
@@ -10,13 +9,13 @@ import scala.concurrent.ExecutionContext
 /**
  *  
  */
-trait ActorSelectionTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
+trait ActorRefTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
 
   val protocol: TagStoreProtocol[O, T]
 
   import protocol._
 
-  def endpoint: ActorSelection
+  def endpoint: ActorRef
 
   implicit def timeout: Timeout
 

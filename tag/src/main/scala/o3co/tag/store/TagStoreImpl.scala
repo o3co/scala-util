@@ -1,6 +1,5 @@
 package o3co.tag
 package store
-package impl
 
 import scala.collection.mutable
 import scala.concurrent.Future
