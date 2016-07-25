@@ -1,8 +1,8 @@
 package o3co.tag
 package store
-package slick 
+package dal
 
-import _root_.slick.driver.JdbcProfile
+import slick.driver.JdbcProfile
 import o3co.tag.tags._
 
 trait TagSupport {

@@ -6,11 +6,7 @@ import scala.concurrent.Future
 /**
  * trait TagStore to store tags with extended MultiMap(SetMultiMap)[O, T] strategy to hold tags for key.
  */
-trait TagStore[O, T <: Tag[T]] extends TagStoreLike[O, T]
-
-/**
- */
-trait TagStoreLike[O, T <: Tag[T]] {
+trait TagStore[O, T <: Tag[T]] {
   /**
    * Get Set of T related with the owner
    */

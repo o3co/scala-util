@@ -10,9 +10,9 @@ import scala.concurrent.ExecutionContext
 /**
  *  
  */
-trait ActorSelectionTagStoreImplLike[O, T <: Tag[T]] extends TagStoreLike[O, T] {
+trait ActorSelectionTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
 
-  val protocol: TagStoreProtocolLike[O, T]
+  val protocol: TagStoreProtocol[O, T]
 
   import protocol._
 
@@ -103,4 +103,3 @@ trait ActorSelectionTagStoreImplLike[O, T <: Tag[T]] extends TagStoreLike[O, T] 
   }
 }
 
-trait ActorSelectionTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] with ActorSelectionTagStoreImplLike[O, T]

@@ -5,13 +5,17 @@ import akka.actor.Actor
 import akka.pattern.pipe
 import scala.concurrent.ExecutionContext
 
+trait TagStoreActor[O, T <: Tag[T]] extends Actor with TagStoreActorLike[O, T] {
+  this: TagStore[O, T] =>
+}
+
 /**
  *
  */
 trait TagStoreActorLike[O, T <: Tag[T]] {
-  this: Actor with TagStoreLike[O, T] => 
+  this: Actor with TagStore[O, T] => 
 
-  val protocol: TagStoreProtocolLike[O, T]
+  val protocol: TagStoreProtocol[O, T]
   import protocol._
 
   implicit def executionContext: ExecutionContext

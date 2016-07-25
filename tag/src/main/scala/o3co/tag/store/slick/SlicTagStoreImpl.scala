@@ -1,8 +1,8 @@
 package o3co.tag
 package store
-package slick
+package dal
 
-import _root_.slick.driver.JdbcProfile
+import slick.driver.JdbcProfile
 import o3co.store.slick.SlickStoreLike
 
 /**
@@ -29,6 +29,8 @@ trait SlickTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] with SlickStoreLi
     def tag     = column[T]("tag")
 
     def  * = (owner, tag)
+
+    def uniqueIdx = index("uniqueIdx", (owner, tag), unique = true)
   }
 
   def database: Database 
@@ -40,7 +42,7 @@ trait SlickTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] with SlickStoreLi
   /**
    *
    */
-  def getTagsForAsync(owner: O) = {
+  def getTagsAsync(owner: O) = {
     database.run(tags.filter(_.owner === owner).map(_.tag).result)
       .map(_.toSet)
   }
@@ -48,9 +50,79 @@ trait SlickTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] with SlickStoreLi
   /**
    *
    */
-  def getOwnersForAsync(tag: T) = {
+  def getOwnersAsync(tag: T) = {
     database.run(tags.filter(_.tag === tag).map(_.owner).result)
       .map(_.toSet)
   }
+
+  /**
+   *
+   */
+  def tagExistsAsync(owner: O, tag: T) = {
+    database.run(tags.filter(r => r.owner === owner && r.tag === tag).size.result)
+      .map (_ > 0)
+  }
+
+  /**
+   *
+   */
+  def putTagAsync(owner: O, tag: T) = {
+    database.run(tags.insertOrUpdate((owner, tag)))
+      .map (_ => (): Unit)
+  }
+
+  /**
+   *
+   */
+  def putTagSetAsync(tags: Set[(O, T)]) = {
+    database.run(DBIO.sequence(tags.map(t => this.tags += t).toSeq))
+      .map (_ => (): Unit)
+  } //: Future[Unit] 
+
+  /**
+   *
+   */
+  def deleteTagAsync(owner: O, tag: T) = {
+    database.run(tags.filter(r => r.owner === owner && r.tag === tag).delete)
+      .map (_ => (): Unit)
+  } //: Future[Unit]
+
+  /**
+   *
+   */
+  def deleteTagSetAsync(tags: Set[(O, T)]) = {
+    database.run(
+      DBIO.sequence(tags.map(t => this.tags.filter(r => r.owner === t._1 && r.tag === t._2).delete).toSeq)
+    )
+      .map (_ => (): Unit)
+  } //: Future[Unit]
+
+  /**
+   *
+   */
+  def deleteAllTagsAsync(owner: O) = {
+    database.run(tags.filter(r => r.owner === owner).delete)
+      .map(_ => (): Unit)
+  } //: Future[Unit]
+
+  /**
+   *
+   */
+  def deleteAllTagsAsync(tag: T) = {
+    database.run(tags.filter(r => r.tag === tag).delete)
+      .map(_ => (): Unit)
+  } //: Future[Unit]
+
+  /**
+   *
+   */
+  def replaceAllTagsAsync(owner: O, tags: Set[T]) = {
+    val query = (for {
+      _ <- this.tags.filter(r => r.owner === owner).delete
+      _ <- DBIO.sequence(tags.map(t => this.tags += (owner, t)).toSeq)
+    } yield ()).transactionally
+
+    database.run(query)
+  } //: Future[Unit] 
 }
 

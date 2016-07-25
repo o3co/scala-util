@@ -4,12 +4,7 @@ package store
 /**
  *
  */
-trait TagStoreProtocol[O, T <: Tag[T]] extends TagStoreProtocolLike[O, T]
-
-/**
- *
- */
-trait TagStoreProtocolLike[O, T <: Tag[T]] {
+trait TagStoreProtocol[O, T <: Tag[T]] {
 
   case class GetTags(owner: O)
   case class GetTagsSuccess(tags: Set[T])
@@ -48,3 +43,4 @@ trait TagStoreProtocolLike[O, T <: Tag[T]] {
   case class ReplaceAllTagsSuccess()
   case class ReplaceAllTagsFailure(cause: Throwable)
 }
+

@@ -4,13 +4,9 @@ package impl
 
 /**
  */
-trait ProxyTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] with ProxyTagStoreImplLike[O, T]
+trait ProxyTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
 
-/**
- */
-trait ProxyTagStoreImplLike[O, T <: Tag[T]] extends TagStoreLike[O, T] {
-
-  def underlying: TagStoreLike[O, T]
+  def underlying: TagStore[O, T]
 
   /**
    *
