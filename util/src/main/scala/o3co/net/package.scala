@@ -1,9 +1,12 @@
 package o3co
 
-import java.net.URI
-import java.net.URL
+//import java.net.URI
+//import java.net.URL
 
 package object net {
+
+  type URL = java.net.URL
+  type URI = java.net.URI
 
   object URL {
     def unapply(url: URL): Option[(String, String, Int, String, Map[String, String], String)] = 

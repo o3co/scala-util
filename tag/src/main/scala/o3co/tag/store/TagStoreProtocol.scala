@@ -39,6 +39,10 @@ trait TagStoreProtocol[O, T <: Tag[T]] {
   case class DeleteAllTagsSuccess()
   case class DeleteAllTagsFailure(cause: Throwable)
 
+  case class ReplaceTags(owner: O, newTags: Set[T], oldTags: Set[T])
+  case class ReplaceTagsSuccess()
+  case class ReplaceTagsFailure(cause: Throwable)
+
   case class ReplaceAllTags(owner: O, tags: Set[T])
   case class ReplaceAllTagsSuccess()
   case class ReplaceAllTagsFailure(cause: Throwable)

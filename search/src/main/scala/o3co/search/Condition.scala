@@ -136,5 +136,9 @@ trait ConditionFactory {
    * @param values Values for traversal contains
    */
   def containsEither[T](values: T *) = Contains.either[T](values: _*)
+
+  def prefix[T](value: String) = Prefix[T](value)
+
+  def suffix[T](value: String) = Suffix[T](value)
 }
 

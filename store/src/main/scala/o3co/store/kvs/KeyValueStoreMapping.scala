@@ -57,7 +57,7 @@ trait WriteAccessMapping[ToKey, FromKey, ToValue, FromValue] extends WriteAccess
   })
 
 //  def replaceAsync(key: ToKey, value: V) = endpoint.replaceAsync(key: ToKey, value: V)
-
+  //def deleteAsync(keys: ToKey *) = endpoint.deleteAsync(keyConverter(keys).collect(case Success(k) => k): _*)
   def deleteAsync(keys: ToKey *) = endpoint.deleteAsync(keys.map(k => k: FromKey): _*)
 
 //  def deleteByKeyAsync(keys: ToKey *) = endpoint.deleteByKeyAsync(keys: ToKey *)

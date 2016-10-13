@@ -26,6 +26,7 @@ trait ScalaLikeOperations extends AsConfig {
       case t if t =:= typeOf[Long]           => underlying.getLong(path)
       case t if t =:= typeOf[Double]         => underlying.getDouble(path)
       case t if t =:= typeOf[Boolean]        => underlying.getBoolean(path)
+      case t if t =:= typeOf[Config]         => underlying.getConfig(path)
       case t => 
         // Try to cast the string value from 
         throw new RuntimeException(s"""Type "${t}" is not supported to get.""")
@@ -55,8 +56,7 @@ trait ScalaLikeOperations extends AsConfig {
     else None
 
   def getConfigOrEmpty(path: String): Config = 
-    if(underlying.hasPath(path)) underlying.getConfig(path)
-    else ConfigFactory.empty() 
+    getConfigOption(path).getOrElse(ConfigFactory.empty())
 
   /**
    * Get value on path as Config OBJECT

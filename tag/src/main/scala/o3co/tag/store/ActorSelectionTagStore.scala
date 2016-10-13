@@ -1,7 +1,7 @@
 package o3co.tag
 package store
 
-import akka.actor.ActorRef 
+import akka.actor.ActorSelection 
 import akka.util.Timeout
 import akka.pattern.ask
 import scala.concurrent.ExecutionContext
@@ -9,13 +9,13 @@ import scala.concurrent.ExecutionContext
 /**
  *  
  */
-trait ActorRefTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
+trait ActorSelectionTagStore[O, T <: Tag[T]] extends TagStore[O, T] {
 
   val protocol: TagStoreProtocol[O, T]
 
   import protocol._
 
-  def endpoint: ActorRef
+  def endpoint: ActorSelection
 
   implicit def timeout: Timeout
 
@@ -53,6 +53,10 @@ trait ActorRefTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
       }
   }
 
+  def putTagAsync(owner: O, tags: Set[T]) = {
+    putTagSetAsync(tags.map(tag => (owner, tag)))
+  }//: Future[Unit]
+
   def putTagSetAsync(tags: Set[(O, T)]) = {
     (endpoint ? PutTagSet(tags))
       .map {
@@ -67,6 +71,11 @@ trait ActorRefTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
         case DeleteTagSuccess() => ()
         case DeleteTagFailure(cause) => throw cause
       }
+  }
+
+
+  def deleteTagAsync(owner: O, tags: Set[T]) = {
+    deleteTagSetAsync(tags.map(tag => (owner, tag)))
   }
 
   def deleteTagSetAsync(tags: Set[(O, T)]) = {
@@ -98,6 +107,14 @@ trait ActorRefTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
       .map {
         case ReplaceAllTagsSuccess() => ()
         case ReplaceAllTagsFailure(cause) => throw cause
+      }
+  }
+
+  def replaceTagsAsync(owner: O, newTags: Set[T], oldTags: Set[T]) = {
+    (endpoint ? ReplaceTags(owner, newTags, oldTags))
+      .map {
+        case ReplaceTagsSuccess() => ()
+        case ReplaceTagsFailure(cause) => throw cause
       }
   }
 }

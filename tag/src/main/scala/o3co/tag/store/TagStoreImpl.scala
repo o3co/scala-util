@@ -5,6 +5,7 @@ import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 
+
 trait BaseTagStoreImplLike[O, T <: Tag[T], +This <: BaseTagStoreImplLike[O, T, This] with BaseTagStoreImpl[O, T]] extends mutable.MapLike[O, Set[T], This] with TagStore[O, T] {
 
   implicit def executionContext: ExecutionContext
@@ -59,6 +60,10 @@ trait BaseTagStoreImplLike[O, T <: Tag[T], +This <: BaseTagStoreImplLike[O, T, T
     Future.successful((): Unit)
   }//: Future[Unit] 
 
+  def putTagAsync(owner: O, tags: Set[T]) = {
+    putTagSetAsync(tags.map(tag => (owner, tag)))
+  }//: Future[Unit]
+
   /**
    *
    */
@@ -76,6 +81,13 @@ trait BaseTagStoreImplLike[O, T <: Tag[T], +This <: BaseTagStoreImplLike[O, T, T
     ownerTags = ownerTags + (owner -> (ownerTags.getOrElse(owner, Set()) - name) )
     Future.successful((): Unit)
   }//: Future[Unit]
+
+  def deleteTagAsync(owner: O, names: Set[T]) = {
+    for(name <- names) {
+      ownerTags = ownerTags + (owner -> (ownerTags.getOrElse(owner, Set()) - name) )
+    }
+    Future.successful((): Unit)
+  }
 
   /**
    *
@@ -115,6 +127,12 @@ trait BaseTagStoreImplLike[O, T <: Tag[T], +This <: BaseTagStoreImplLike[O, T, T
   def replaceAllTagsAsync(owner: O, names: Set[T]) = {
     ownerTags = ownerTags + (owner -> names)
     Future.successful((): Unit)
+  }//: Future[Unit] 
+
+  def replaceTagsAsync(owner: O, newNames: Set[T], oldNames: Set[T]) = {
+    deleteTagAsync(owner, oldNames).flatMap { _ => 
+      putTagAsync(owner, newNames)
+    }
   }//: Future[Unit] 
 }
 

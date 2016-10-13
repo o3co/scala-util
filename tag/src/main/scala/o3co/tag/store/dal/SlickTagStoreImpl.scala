@@ -26,7 +26,7 @@ trait SlickTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] with SlickStoreLi
    */
   class Tags(tableTag: TableTag) extends Table[(O, T)](tableTag, tableName) {
     def owner   = column[O]("owner")
-    def tag     = column[T]("tag")
+    def tag     = column[T]("tag", O.Length(255))
 
     def  * = (owner, tag)
 
@@ -72,6 +72,12 @@ trait SlickTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] with SlickStoreLi
   }
 
   /**
+   */
+  def putTagAsync(owner: O, tags: Set[T]) = {
+    putTagSetAsync(tags.map(tag => (owner, tag)))
+  }//: Future[Unit]
+
+  /**
    *
    */
   def putTagSetAsync(tags: Set[(O, T)]) = {
@@ -83,7 +89,15 @@ trait SlickTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] with SlickStoreLi
    *
    */
   def deleteTagAsync(owner: O, tag: T) = {
-    database.run(tags.filter(r => r.owner === owner && r.tag === tag).delete)
+    database.run(this.tags.filter(r => r.owner === owner && r.tag === tag).delete)
+      .map (_ => (): Unit)
+  } //: Future[Unit]
+
+  /**
+   *
+   */
+  def deleteTagAsync(owner: O, tags: Set[T]) = {
+    database.run(this.tags.filter(r => (r.owner === owner) && (r.tag inSet(tags))).delete)
       .map (_ => (): Unit)
   } //: Future[Unit]
 
@@ -117,12 +131,17 @@ trait SlickTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] with SlickStoreLi
    *
    */
   def replaceAllTagsAsync(owner: O, tags: Set[T]) = {
-    val query = (for {
+    database.run((for {
       _ <- this.tags.filter(r => r.owner === owner).delete
       _ <- DBIO.sequence(tags.map(t => this.tags += (owner, t)).toSeq)
-    } yield ()).transactionally
-
-    database.run(query)
+    } yield ()).transactionally)
   } //: Future[Unit] 
+
+  def replaceTagsAsync(owner: O, newTags: Set[T], oldTags: Set[T]) = {
+    database.run((for {
+      _ <- this.tags.filter(r => r.owner === owner && (r.tag inSet(oldTags))).delete
+      _ <- DBIO.sequence(newTags.map(t => this.tags += (owner, t)).toSeq)
+    } yield()).transactionally)
+  }
 }
 

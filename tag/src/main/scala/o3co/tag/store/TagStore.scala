@@ -28,6 +28,10 @@ trait TagStore[O, T <: Tag[T]] {
   def putTagAsync(owner: O, tag: T): Future[Unit] 
 
   /**
+   */
+  def putTagAsync(owner: O, tags: Set[T]): Future[Unit]
+
+  /**
    *
    */
   def putTagSetAsync(tags: Set[(O, T)]): Future[Unit] 
@@ -36,6 +40,11 @@ trait TagStore[O, T <: Tag[T]] {
    *
    */
   def deleteTagAsync(owner: O, tag: T): Future[Unit]
+
+  /**
+   *
+   */
+  def deleteTagAsync(owner: O, tags: Set[T]): Future[Unit]
 
   /**
    *
@@ -55,5 +64,10 @@ trait TagStore[O, T <: Tag[T]] {
   /**
    *
    */
-  def replaceAllTagsAsync(owner: O, tags: Set[T]): Future[Unit] 
+  def replaceTagsAsync(owner: O, newTags: Set[T], oldTags: Set[T]): Future[Unit] 
+
+  /**
+   *
+   */
+  def replaceAllTagsAsync(owner: O, newTags: Set[T]): Future[Unit] 
 }

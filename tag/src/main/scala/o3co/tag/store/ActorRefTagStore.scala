@@ -1,7 +1,7 @@
 package o3co.tag
 package store
 
-import akka.actor.ActorSelection 
+import akka.actor.ActorRef 
 import akka.util.Timeout
 import akka.pattern.ask
 import scala.concurrent.ExecutionContext
@@ -9,13 +9,13 @@ import scala.concurrent.ExecutionContext
 /**
  *  
  */
-trait ActorSelectionTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
+trait ActorRefTagStore[O, T <: Tag[T]] extends TagStore[O, T] {
 
   val protocol: TagStoreProtocol[O, T]
 
   import protocol._
 
-  def endpoint: ActorSelection
+  def endpoint: ActorRef
 
   implicit def timeout: Timeout
 
@@ -90,6 +90,14 @@ trait ActorSelectionTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
       .map {
         case DeleteAllTagsSuccess() => ()
         case DeleteAllTagsFailure(cause) => throw cause
+      }
+  }
+
+  def replaceTagsAsync(owner: O, newTags: Set[T], oldTags: Set[T]) = {
+    (endpoint ? ReplaceTags(owner, newTags, oldTags))
+      .map {
+        case ReplaceTagsSuccess() => ()
+        case ReplaceTagsFailure(cause) => throw cause
       }
   }
 

@@ -1,6 +1,7 @@
 package o3co.tag
 
 /**
+ * Tag
  */
 trait Tag[T <: Tag[T]] {
   /**

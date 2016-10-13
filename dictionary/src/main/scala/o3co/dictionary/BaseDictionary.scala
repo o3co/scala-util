@@ -21,7 +21,7 @@ trait BaseDictionary[K, V] {
 
 trait BaseAsyncDictionary[K, V] {
 
-  def containsAsync(key: K): Future[Boolean]
+  def containsKeyAsync(key: K): Future[Boolean]
 
   def containsValueAsync(value: V): Future[Boolean]
   
@@ -35,3 +35,4 @@ trait BaseAsyncDictionary[K, V] {
 
   def valuesAsync: Future[Set[V]]
 }
+

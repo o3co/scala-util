@@ -18,13 +18,17 @@ trait ReversibleConversion[A, B] extends Conversion[A, B] {
  */
 object Conversion {
 
-  type Forward[A, B]  = (A) => B
-  type Backward[A, B] = (B) => A
+  type Forward[A, B]  = A => B
+  type Backward[A, B] = B => A
   
+  /**
+   */
   def apply[A, B](f: Forward[A, B]): Conversion[A, B] = new Conversion[A, B] {
     def apply(from: A) = f(from)
   }
 
+  /**
+   */
   def apply[A, B](f: Forward[A, B], g: Backward[A, B]): ReversibleConversion[A, B] = 
     ReversibleConversion[A, B](f, g)
 }

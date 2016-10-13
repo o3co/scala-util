@@ -10,6 +10,15 @@ case class Domain(name: String, isFullyQualified: Boolean) {
   }
 
   /**
+   * {{{
+   *   Domain("sample.com").reverse 
+   *   // Domain("com.sample")
+   * }}}
+   */
+  def reverse: Domain = 
+    Domain(name.split('.').reverse.mkString("."))
+
+  /**
    *
    */
   def subdomain(sub: Domain): Domain = Domain(name, sub.name)(isFullyQualified)

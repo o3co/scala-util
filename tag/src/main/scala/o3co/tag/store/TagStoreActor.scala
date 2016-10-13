@@ -4,9 +4,13 @@ package store
 import akka.actor.Actor
 import akka.pattern.pipe
 import scala.concurrent.ExecutionContext
+import o3co.actor.ServiceActor
 
-trait TagStoreActor[O, T <: Tag[T]] extends Actor with TagStoreActorLike[O, T] {
+trait TagStoreActor[O, T <: Tag[T]] extends ServiceActor with TagStoreActorLike[O, T] {
   this: TagStore[O, T] =>
+
+  def receive = receiveTagStoreCommand orElse receiveExtension
+
 }
 
 /**
@@ -82,6 +86,13 @@ trait TagStoreActorLike[O, T <: Tag[T]] {
         .map(_ => DeleteAllTagsSuccess())
         .recover {
           case e: Throwable => DeleteAllTagsFailure(e)
+        }
+        .pipeTo(sender())
+    case ReplaceTags(owner, newTags, oldTags) => 
+      replaceTagsAsync(owner, newTags, oldTags)
+        .map(_ => ReplaceTagsSuccess())
+        .recover {
+          case e: Throwable => ReplaceTagsFailure(e)
         }
         .pipeTo(sender())
     case ReplaceAllTags(owner, tags) => 

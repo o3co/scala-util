@@ -20,4 +20,8 @@ trait ExtendedConfig extends AsConfig
       case t => super.get[T](path)
     }).asInstanceOf[T]
   }
+
+  def withDefaults: Config = {
+    underlying.withFallback(global.Defaults)
+  }
 }

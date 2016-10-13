@@ -122,7 +122,11 @@ object Build extends Build
           specs2
         )
     )
-    .dependsOn(util, dictionary % "provided,test", store % "provided,test")
+    .dependsOn(
+      util, 
+      dictionary % "provided,test", 
+      store % "provided,test"
+    )
 
   lazy val text = Project("text", file("text"))
     .settings(basicSettings: _*)
@@ -143,6 +147,7 @@ object Build extends Build
           commonsLang,
           commonsValidator,
           shapeless,
+          slick,
           typesafeConfig
         ) ++ 
         test (

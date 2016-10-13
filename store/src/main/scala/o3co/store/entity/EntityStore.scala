@@ -1,4 +1,5 @@
-package o3co.store.entity
+package o3co.store
+package entity
 
 import o3co.store.{Store, StoreLike}
 import scala.concurrent.Future
@@ -27,4 +28,39 @@ trait ReadOnlyEntityStore[K, E <: Entity[K]] extends Store with ReadAccess[K, E]
  */
 trait ReadOnlyEntityStoreLike[K, E <: Entity[K]] extends StoreLike with ReadAccessLike[K, E] {
   this: ReadOnlyEntityStore[K, E] => 
+}
+
+object EntityStore {
+
+  trait Searchable[K, E <: Entity[K], C] {
+    this: EntityStore[K, E] => 
+
+    import o3co.search._
+
+    def findAsync(condition: Option[C] = None, order: Option[OrderByFields] = None, size: Size = All, offset: Offset = 0): Future[(Seq[K], Long)]
+  }
+
+  trait Read[K, E <: Entity[K]] {
+    this: Store => 
+
+    /**
+     * Get ids 
+     */
+    def idsAsync: Future[Set[K]]
+  }
+
+  trait Write[K, E <: Entity[K]] extends vs.ValueStore.Write[E] {
+    this: Store => 
+
+    /**
+     * Delete entities by ids
+     */
+    def deleteByIdAsync(ids: K *): Future[Unit]
+
+    /**
+     * Delete entities
+     */
+    def deleteAsync(entities: E *): Future[Unit] = 
+      deleteByIdAsync(entities.map(_.id): _*)
+  }
 }

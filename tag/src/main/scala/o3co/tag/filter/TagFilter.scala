@@ -1,16 +1,38 @@
 package o3co.tag
 package filter
 
-trait TagFilter[T1 <: Tag[T1], T2 <: Tag[T2]] extends Function[T1, Option[T2]] {
+/**
+ *
+ */
+trait TagFilter[T <: Tag[T]] extends Function[T, Option[T]] {
+
   /**
    * Get reverse filter
    */
-  def reverse: TagFilter[T2, T1]
+  def reverse: TagFilter[T]
 
-  def apply(tag: T1): Option[T2]
+  /**
+   * Alias of filter 
+   */
+  def apply(tag: T): Option[T] = filter(tag)
 
-  def apply(tags: Set[T1]): Set[T2] = 
+  /**
+   * Alias of filter
+   */
+  def apply(tags: Set[T]): Set[T] = filter(tags)
+
+  /**
+   * apply filter to tag
+   */
+  def filter(tag: T): Option[T]
+
+  /**
+   * Apply filter to tags
+   */
+  def filter(tags: Set[T]): Set[T] = 
     tags
-      .map(tag => apply(tag))
-      .collect{ case Some(t) => t }
+      .map(tag => filter(tag))
+      .collect{ 
+        case Some(t) => t 
+      }
 }

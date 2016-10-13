@@ -11,10 +11,15 @@ trait SlickBiDictionaryStoreLike[K, V] extends SlickKeyValueStoreLike[K, V] with
 
   import profile.api._
 
+  /**
+   *
+   */
   abstract class DictionaryTable(tag: Tag, name: String) extends KeyValueTable(tag, name) {
+    // Add unique constrait into value
     def idxUniqueValue = index("idx_unique_value", (value), unique = true)
   }
 
+  def terms = keyValues
 }
 
 trait SlickBiDictionaryStore[K, V] extends SlickBiDictionaryStoreLike[K, V] {

@@ -3,7 +3,7 @@ package store
 
 /**
  */
-trait ProxyTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
+trait ProxyTagStore[O, T <: Tag[T]] extends TagStore[O, T] {
 
   def underlying: TagStore[O, T]
 
@@ -34,6 +34,12 @@ trait ProxyTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
   /**
    *
    */
+  def putTagAsync(owner: O, tags: Set[T]) = 
+    underlying.putTagAsync(owner, tags)
+
+  /**
+   *
+   */
   def putTagSetAsync(tags: Set[(O, T)]) =
     underlying.putTagSetAsync(tags)
 
@@ -42,6 +48,12 @@ trait ProxyTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
    */
   def deleteTagAsync(owner: O, tag: T) =
     underlying.deleteTagAsync(owner, tag)
+
+  /**
+   *
+   */
+  def deleteTagAsync(owner: O, tags: Set[T]) =
+    underlying.deleteTagAsync(owner, tags)
 
   /**
    *
@@ -62,15 +74,15 @@ trait ProxyTagStoreImpl[O, T <: Tag[T]] extends TagStore[O, T] {
     underlying.deleteAllTagsAsync(tag)
 
   /**
-   *
+   * Replace oldTags to newTags
+   */
+  def replaceTagsAsync(owner: O, newTags: Set[T], oldTags: Set[T]) =
+    underlying.replaceTagsAsync(owner, newTags, oldTags)
+
+  /**
+   * replace all existed tags to new tags
    */
   def replaceAllTagsAsync(owner: O, tags: Set[T]) =
     underlying.replaceAllTagsAsync(owner, tags)
 }
 
-object ProxyTagStoreImpl {
-  def apply[O, T <: Tag[T]](tagStore: TagStore[O, T]) =
-    new ProxyTagStoreImpl[O, T] {
-      override val underlying = tagStore
-    }
-}

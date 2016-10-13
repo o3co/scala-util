@@ -155,3 +155,9 @@ object Contains {
   def either[A](values: A*) = Or(values.map(value => Contains(value)).toSeq: _*)
 }
 
+trait TextCondition[T] extends Condition[T]
+case class Prefix[T](value: String) extends TextCondition[T] {
+}
+
+case class Suffix[T](value: String) extends TextCondition[T]{
+}
