@@ -14,12 +14,18 @@ trait ScalaLikeOperations extends AsConfig {
   def get[T: WeakTypeTag](path: String): T = {
     (weakTypeOf[T] match {
       case t if t =:= typeOf[Duration]       => Duration(underlying.getDuration(path, MILLISECONDS), MILLISECONDS)
-      case t if t =:= typeOf[List[Boolean]]  => underlying.getBooleanList(path).asScala.toList
-      case t if t =:= typeOf[List[Number]]   => underlying.getNumberList(path).asScala.toList
-      case t if t =:= typeOf[List[Int]]      => underlying.getIntList(path).asScala.toList
-      case t if t =:= typeOf[List[Long]]     => underlying.getLongList(path).asScala.toList
-      case t if t =:= typeOf[List[Double]]   => underlying.getDoubleList(path).asScala.toList
-      case t if t =:= typeOf[List[String]]   => underlying.getStringList(path).asScala.toList
+      //case t if t =:= typeOf[Seq[Boolean]]  => underlying.getBooleanList(path).asScala.toSeq
+      //case t if t =:= typeOf[Seq[Number]]   => underlying.getNumberList(path).asScala.toSeq
+      //case t if t =:= typeOf[Seq[Int]]      => underlying.getIntList(path).asScala.toSeq
+      //case t if t =:= typeOf[Seq[Long]]     => underlying.getLongList(path).asScala.toSeq
+      //case t if t =:= typeOf[Seq[Double]]   => underlying.getDoubleList(path).asScala.toSeq
+      //case t if t =:= typeOf[Seq[String]]   => underlying.getStringList(path).asScala.toSeq
+      case t if t <:< typeOf[Seq[Boolean]]  => underlying.getBooleanList(path).asScala.toSeq
+      case t if t <:< typeOf[Seq[Number]]   => underlying.getNumberList(path).asScala.toSeq
+      case t if t <:< typeOf[Seq[Int]]      => underlying.getIntList(path).asScala.toSeq
+      case t if t <:< typeOf[Seq[Long]]     => underlying.getLongList(path).asScala.toSeq
+      case t if t <:< typeOf[Seq[Double]]   => underlying.getDoubleList(path).asScala.toSeq
+      case t if t <:< typeOf[Seq[String]]   => underlying.getStringList(path).asScala.toSeq
       case t if t =:= typeOf[String]         => underlying.getString(path)
       case t if t =:= typeOf[Number]         => underlying.getNumber(path)
       case t if t =:= typeOf[Int]            => underlying.getInt(path)
@@ -73,5 +79,12 @@ trait ScalaLikeOperations extends AsConfig {
       case ConfigValueType.OBJECT => underlying.getConfig(path)
       case _ =>  value.atPath(innerPath)
     }
+  }
+
+  /**
+   *
+   */
+  def toMap: Map[String, ConfigValue] = {
+    underlying.root().entrySet.map(e => (e.getKey(), e.getValue())).toMap 
   }
 }

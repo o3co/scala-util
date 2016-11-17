@@ -1,57 +1,31 @@
 package o3co.store
 package entity
 
-import o3co.store.{Store, StoreLike}
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 
 /**
- * Base interface of EntityStore 
  */
-trait EntityStore[K, E <: Entity[K]] extends Store with ReadOnlyEntityStore[K, E] with WriteAccess[K, E]
-
-/**
- * Base trait of EntityStoreLike which implement the template of EntityStore
- */
-trait EntityStoreLike[K, E <: Entity[K]] extends StoreLike with ReadAccessLike[K, E] with WriteAccessLike[K, E] {
-  this: EntityStore[K, E] => 
-}
-
-// ReadOnly Store APIs
-/**
- * Base interface of ReadOnly EntityStore
- */
-trait ReadOnlyEntityStore[K, E <: Entity[K]] extends Store with ReadAccess[K, E]
-
-/**
- * Base trait of EntityStoreLike which implement the template of EntityStore
- */
-trait ReadOnlyEntityStoreLike[K, E <: Entity[K]] extends StoreLike with ReadAccessLike[K, E] {
-  this: ReadOnlyEntityStore[K, E] => 
-}
-
 object EntityStore {
 
   trait Searchable[K, E <: Entity[K], C] {
-    this: EntityStore[K, E] => 
+    this: EntityStore.Read[K, E] => 
 
     import o3co.search._
 
     def findAsync(condition: Option[C] = None, order: Option[OrderByFields] = None, size: Size = All, offset: Offset = 0): Future[(Seq[K], Long)]
   }
 
-  trait Read[K, E <: Entity[K]] {
-    this: Store => 
+  trait Base extends Store 
 
+  trait Read[K, E <: Entity[K]] extends Base with kvs.KeyValueStore.Read[K, E] {
     /**
      * Get ids 
      */
     def idsAsync: Future[Set[K]]
   }
 
-  trait Write[K, E <: Entity[K]] extends vs.ValueStore.Write[E] {
-    this: Store => 
-
+  trait Write[K, E <: Entity[K]] extends Base with vs.ValueStore.Write[E] {
     /**
      * Delete entities by ids
      */
@@ -63,4 +37,18 @@ object EntityStore {
     def deleteAsync(entities: E *): Future[Unit] = 
       deleteByIdAsync(entities.map(_.id): _*)
   }
+
+  type Full[K, E <: Entity[K]] = Read[K, E] with Write[K, E]
 }
+
+/**
+ * Base interface of EntityStore 
+ */
+trait EntityStore[K, E <: Entity[K]] extends EntityStore.Read[K, E] with EntityStore.Write[K, E]
+
+// ReadOnly Store APIs
+/**
+ * Base interface of ReadOnly EntityStore
+ */
+trait ReadOnlyEntityStore[K, E <: Entity[K]] extends EntityStore.Read[K, E]
+

@@ -28,6 +28,13 @@ object OrderBy {
   }
 
   object ImplicitConversions extends ImplicitConversions 
+
+
+  type Field   = OrderByField
+  val  Field   = OrderByField
+
+  type Fields   = OrderByFields
+  val  Fields   = OrderByFields
 }
 
 case class OrderByField(fieldname: String, direction: OrdinalDirection = OrdinalDirections.ASC) extends OrderBy {
@@ -38,6 +45,12 @@ case class OrderByField(fieldname: String, direction: OrdinalDirection = Ordinal
 case class OrderByFields(fields: Seq[OrderByField] = Seq(), direction: OrdinalDirection = OrdinalDirections.ASC) extends OrderBy {
   def asc: OrderByFields = copy(direction = OrdinalDirections.ASC)
   def desc: OrderByFields = copy(direction = OrdinalDirections.DESC)
+}
+
+object OrderByFields {
+
+  def apply(fields: String *): OrderByFields = 
+    OrderByFields(fields.map(OrderByField(_)))
 }
 
 //

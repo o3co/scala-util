@@ -7,7 +7,7 @@ import o3co.matcher._
 /**
  *
  */
-case class PrefixTagFilter[T <: Tag[T]](prefix: String, removePrefix: Boolean = true) extends TagFilter[T] {
+case class PrefixTagFilter[T <: Tag[T]](prefix: String, removePrefix: Boolean = true) extends TagFilter[T, T] {
 
   /**
    *
@@ -32,7 +32,7 @@ case class PrefixTagFilter[T <: Tag[T]](prefix: String, removePrefix: Boolean = 
     else this
 }
 
-case class PrependTagFilter[T <: Tag[T]](prefix: String) extends TagFilter[T] {
+case class PrependTagFilter[T <: Tag[T]](prefix: String) extends TagFilter[T, T] {
 
   def filter(from: T) = Option(from.rename(prefix + from.name))
 

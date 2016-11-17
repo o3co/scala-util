@@ -1,38 +1,26 @@
-package o3co.store.entity
+package o3co.store
+package entity
 
-import akka.actor.Actor
-import o3co.actor.ServiceActor
-import o3co.store
 
-/**
- */
-trait ReceiveReadAccess[K, E <: Entity[K]] extends store.kvs.ReceiveReadAccess[K, E] {
-  this: Actor with ReadAccess[K, E] =>
+object EntityStoreActor {
+  
+  type Read[K, E <: Entity[K]] = kvs.KeyValueStoreActor.Read[K, E]
 
-  val protocol: EntityStoreProtocol[K, E]
+  type Write[K, E <: Entity[K]] = vs.ValueStoreActor.Write[E]
+
+  type Full[K, E <: Entity[K]] = Read[K, E] with Write[K, E]
 }
 
-/**
- */
-trait ReceiveWriteAccess[K, E <: Entity[K]] extends store.vs.ReceiveWriteAccess[E] {
-  this: Actor with WriteAccess[K, E] =>
+trait EntityStoreActor[K, E <: Entity[K]] extends StoreActor 
+  with EntityStoreActor.Read[K, E]
+  with EntityStoreActor.Write[K, E]
+{
+  this: Store with EntityStore.Full[K, E] =>
 
-  val protocol: EntityStoreProtocol[K, E]
-}
-
-/**
- */
-trait EntityStoreReceiver[K, E <: Entity[K]] extends store.ReceiveCountableStore with ReceiveReadAccess[K, E] with ReceiveWriteAccess[K, E] {
-  this: Actor with EntityStore[K, E] => 
+  override val protocol: StoreProtocol with EntityStoreProtocol.Full[K, E]
 
   override def receiveStoreCommands = 
-    super[ReceiveCountableStore].receiveStoreCommands orElse 
-    super[ReceiveReadAccess].receiveStoreCommands orElse 
-    super[ReceiveWriteAccess].receiveStoreCommands
-}
-
-trait EntityStoreActor[K, E <: Entity[K]] extends ServiceActor with EntityStoreReceiver[K, E] {
-  this: EntityStore[K, E] =>
-
-  def receive = receiveStoreCommands orElse receiveExtension
+    super[StoreActor].receiveStoreCommands orElse 
+    super[Read].receiveStoreCommands orElse 
+    super[Write].receiveStoreCommands
 }

@@ -1,12 +1,26 @@
-package o3co.store.entity
+package o3co.store
+package entity
 
-import o3co.store.StoreProtocol
-import o3co.store.vs.ValueStoreProtocol
-import o3co.store.kvs.KeyValueStoreProtocol
+object EntityStoreProtocol {
 
-trait EntityStoreProtocolLike[K, E <: Entity[K]] {
+  trait Read[K, E <: Entity[K]] extends kvs.KeyValueStoreProtocol.Read[K, E] {
+    this: StoreProtocol =>
+  }
+
+  trait Write[K, E <: Entity[K]] extends vs.ValueStoreProtocol.Write[E] {
+    this: StoreProtocol =>
+
+    case class DeleteByIds(ids: Seq[K])
+    case object DeleteByIdsSuccess
+    case class  DeleteByIdsFailure(cause: Throwable)
+  }
+
+  type Full[K, E <: Entity[K]] = Read[K, E] with Write[K, E]
 }
 
-trait EntityStoreProtocol[K, E <: Entity[K]] extends ValueStoreProtocol[E] with KeyValueStoreProtocol[K, E] with EntityStoreProtocolLike[K, E] {
+trait EntityStoreProtocol[K, E <: Entity[K]] extends StoreProtocol
+  with EntityStoreProtocol.Read[K, E]
+  with EntityStoreProtocol.Write[K, E]
+{
 
 }

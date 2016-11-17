@@ -88,6 +88,9 @@ object Build extends Build
         ) ++ 
         compile(
           scalaParserCombinator
+        ) ++ 
+        test (
+          specs2
         )
     )
     .dependsOn(util)
@@ -144,6 +147,7 @@ object Build extends Build
         provided (
           akkaActor,
           c3p0,
+          commonsCodec,
           commonsLang,
           commonsValidator,
           shapeless,
@@ -153,6 +157,7 @@ object Build extends Build
         test (
           akkaActor,
           c3p0,
+          commonsCodec,
           commonsLang,
           commonsValidator,
           specs2,

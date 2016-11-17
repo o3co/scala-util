@@ -44,8 +44,8 @@ trait SearchExtension extends SlickJDBCEnvironment {
         conds.map(c => c(column)).reduceLeft((l, r) => (l || r))
       case r: Range[A]            => 
         r.toComparisons(column)
-      case Prefix(v)              => column.asColumnOf[String] like v.toString + "%"
-      case Suffix(v)              => column.asColumnOf[String] like "%" + v.toString
+      case Prefix(v)              => column.asColumnOf[String] like (v.toString + "%")
+      case Suffix(v)              => column.asColumnOf[String] like ("%" + v.toString)
     }
   }
 

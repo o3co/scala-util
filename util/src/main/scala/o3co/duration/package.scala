@@ -1,3 +1,4 @@
 package o3co
 
-package object duration extends Implicits 
+package object duration extends Implicits {
+}

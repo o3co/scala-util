@@ -1,4 +1,5 @@
-package o3co.store.vs 
+package o3co.store
+package vs 
 
 import akka.actor.Actor
 import akka.pattern.pipe
@@ -6,61 +7,62 @@ import o3co.actor.ServiceActor
 import o3co.store
 import scala.concurrent.ExecutionContext
 
-trait ReceiveValueStore[V] extends store.ReceiveStore {
-  this: Actor =>
+object ValueStoreActor {
 
-  val protocol: ValueStoreProtocol[V] 
-}
+  trait Read[V] extends StoreActor.Access {
+    this: Actor with Store with ValueStore.Read[V] =>
 
-trait ReceiveReadAccess[V] extends ReceiveValueStore[V] {
-  this: Actor with ReadAccess[V] =>
+    val protocol: ValueStoreProtocol.Read[V]
+    import protocol._
 
-  import protocol._
-
-  def receiveStoreCommands = {
-    case ValueExists(value) =>
-      existsAsync(value)
-        .map(ValueExistsSuccess(_))
-        .pipeTo(sender())
-    case GetValues =>
-      valuesAsync()
-        .map(GetValuesSuccess(_))
-        .pipeTo(sender())
+    def receiveStoreCommands = {
+      case ValueExists(value) =>
+        existsAsync(value)
+          .map(ValueExistsSuccess(_))
+          .pipeTo(sender())
+      case GetValues =>
+        valuesAsync()
+          .map(GetValuesSuccess(_))
+          .pipeTo(sender())
+    }
   }
-}
 
-trait ReceiveWriteAccess[V] extends ReceiveValueStore[V] {
-  this: Actor with WriteAccess[V] =>
+  trait Write[V] extends StoreActor.Access {
+    this: Actor with Store with ValueStore.Write[V] =>
 
-  import protocol._
+    val protocol: ValueStoreProtocol.Write[V]
+    import protocol._
 
-  def receiveStoreCommands = {
-    case AddValues(values) =>
-      addAsync(values: _*)
-        .map(_ => AddValuesSuccess)
-        .pipeTo(sender())
-    case PutValues(values) =>
-      putAsync(values: _*)
-        .map(_ => PutValuesSuccess)
-        .pipeTo(sender())
-    case DeleteValues(values) =>
-      deleteAsync(values: _*)
-        .map(_ => DeleteValuesSuccess)
-        .pipeTo(sender())
+    def receiveStoreCommands = {
+      case AddValues(values) =>
+        addAsync(values: _*)
+          .map(_ => AddValuesSuccess)
+          .pipeTo(sender())
+      case PutValues(values) =>
+        putAsync(values: _*)
+          .map(_ => PutValuesSuccess)
+          .pipeTo(sender())
+      case DeleteValues(values) =>
+        deleteAsync(values: _*)
+          .map(_ => DeleteValuesSuccess)
+          .pipeTo(sender())
+    }
   }
+
+  type Full[V] = Read[V] with Write[V] 
 }
 
-trait ValueStoreReceiver[V] extends store.ReceiveCountableStore with ReceiveReadAccess[V] with ReceiveWriteAccess[V] {
-  this: Actor with ValueStore[V] => 
+/**
+ *
+ */
+trait ValueStoreActor[V] extends StoreActor with ValueStoreActor.Read[V] with ValueStoreActor.Write[V] {
+  this: Store with ValueStore.Read[V] with ValueStore.Write[V] =>
 
-  override def receiveStoreCommands = 
-    super[ReceiveCountableStore].receiveStoreCommands orElse 
-    super[ReceiveReadAccess].receiveStoreCommands orElse 
-    super[ReceiveWriteAccess].receiveStoreCommands
-}
+  val protocol: StoreProtocol with ValueStoreProtocol.Full[V]
 
-trait ValueStoreActor[V] extends ServiceActor with ValueStoreReceiver[V] {
-  this: ValueStore[V] =>
-
-  def receive = receiveStoreCommands orElse receiveExtension
+  override def receiveStoreCommands = {
+    super[StoreActor].receiveStoreCommands orElse 
+    super[Read].receiveStoreCommands orElse 
+    super[Write].receiveStoreCommands
+  }
 }

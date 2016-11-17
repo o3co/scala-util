@@ -35,6 +35,12 @@ trait Condition[+T] {
  */
 object Condition extends ConditionFactory {
 
+  def Any = conditions.Any
+
+  def IsEmpty = conditions.IsEmpty
+
+  def IsNotEmpty = conditions.IsNotEmpty
+
   /**
    *
    */
@@ -85,13 +91,15 @@ trait ScalarConditionLike[+T] {
   def asCondition[B](implicit f: T => B): Condition[B]
 }
 
-
-
 /**
  * Condition Factory to create Conditions
  */
 trait ConditionFactory {
 
+  def any                           = Any
+  def isEmpty                       = IsEmpty
+  def isNotEmpty                    = IsNotEmpty
+  def nonEmpty                      = IsNotEmpty
   def eq[T](value: T): Equals[T]    = Equals[T](value)
   def ne[T](value: T)               = NotEquals[T](value)
   def lt[T](value: T)               = LessThan[T](value)

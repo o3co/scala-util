@@ -35,8 +35,10 @@ object DataSourceDatabase {
 
     def config: com.typesafe.config.Config
 
+    def datasourceConfig: com.typesafe.config.Config = config
+
     val dataSourceFactory: o3co.datasource.DataSourceFactory = o3co.datasource.ComboPooledDataSourceFactory
 
-    lazy val dataSource = dataSourceFactory(config)
+    lazy val dataSource = dataSourceFactory(datasourceConfig)
   }
 }

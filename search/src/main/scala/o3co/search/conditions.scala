@@ -4,6 +4,14 @@ package conditions
 import java.lang.Comparable
 
 /**
+ * Any condition
+ */
+case object Any extends Condition[Nothing]
+
+case object IsEmpty extends Condition[Nothing]
+case object IsNotEmpty extends Condition[Nothing]
+
+/**
  *
  */
 trait ListCondition[A] extends Condition[Traversable[A]] {
