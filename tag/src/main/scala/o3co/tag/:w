@@ -21,7 +21,7 @@ trait TagFilter[A <: Tag[A]] extends TagSetTransformer[A, A]
 object TagFilter {
   
   def apply[A <: Tag[A]](f: A => Boolean) = 
-    new TagFilter[A] {
+    new TagFilter {
       def filter(tag: A) = f(tag)
     }
 }

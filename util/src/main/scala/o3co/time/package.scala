@@ -16,4 +16,8 @@ package object time {
   implicit class LocalDateTimeExtension(val ldt: LocalDateTime) {
     def toUTC: ZonedDateTime = ldt.atZone(ZoneOffset.UTC)
   }
+
+  implicit class OffsetDateTimeExtension(val odt: OffsetDateTime) {
+    def toUTC: ZonedDateTime = odt.atZoneSameInstant(ZoneOffset.UTC)
+  }
 }
